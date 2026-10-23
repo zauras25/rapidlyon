@@ -120,8 +120,8 @@ create table if not exists public.invoices (
     references public.project_agreements (id, client_id, project_id) on delete restrict,
   constraint invoices_id_client_key unique (id, client_id),
   constraint invoices_date_order check (due_date >= issue_date),
-  constraint invoices_total_check check (total = subtotal - discount + tax),
-  constraint invoices_discount_check check (discount <= subtotal),
+  constraint invoices_total_formula_check check (total = subtotal - discount + tax),
+  constraint invoices_discount_limit_check check (discount <= subtotal),
   constraint invoices_paid_state check (status not in ('paid', 'refunded') or paid_at is not null)
 );
 
