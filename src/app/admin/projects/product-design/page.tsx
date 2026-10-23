@@ -1,0 +1,17 @@
+import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+import { ProjectsAdmin } from "@/components/admin/projects-admin";
+import { discoveryAdminConfigured, isDiscoveryAdmin } from "@/lib/discovery-auth";
+import { getSupabaseServerConfig } from "@/lib/supabase-server";
+
+export const metadata: Metadata = {
+  title: "Product Design project management",
+  robots: { index: false, follow: false },
+};
+
+export default async function ProductDesignProjectsPage() {
+  if (!discoveryAdminConfigured() || !getSupabaseServerConfig() || !(await isDiscoveryAdmin())) {
+    redirect("/admin/discovery/login?next=%2Fadmin%2Fprojects%2Fproduct-design");
+  }
+  return <ProjectsAdmin page="product-design" />;
+}
