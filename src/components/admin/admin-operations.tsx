@@ -211,19 +211,20 @@ function navLinkClass(active = false) {
   return active ? "font-semibold text-ink" : "text-body-muted underline underline-offset-4 hover:text-ink";
 }
 
-function AdminNavigation({ active }: { active: "operations" | "discovery" | "clients" | "projects" | "reviews" }) {
+function AdminNavigation({ active }: { active: "operations" | "discovery" | "clients" | "projects" | "reviews" | "billing" }) {
   return (
     <nav aria-label="Admin sections" className="mt-5 flex gap-2 overflow-x-auto pb-1 text-sm sm:flex-wrap sm:gap-x-5 sm:gap-y-2">
       <Link href="/admin" aria-current={active === "operations" ? "page" : undefined} className={`${navLinkClass(active === "operations")} shrink-0 rounded-full px-2 py-1 sm:px-0 sm:py-0`}>Operations</Link>
       <Link href="/admin/discovery" aria-current={active === "discovery" ? "page" : undefined} className={`${navLinkClass(active === "discovery")} shrink-0 rounded-full px-2 py-1 sm:px-0 sm:py-0`}>Discovery</Link>
       <Link href="/admin/clients" aria-current={active === "clients" ? "page" : undefined} className={`${navLinkClass(active === "clients")} shrink-0 rounded-full px-2 py-1 sm:px-0 sm:py-0`}>Client projects</Link>
+      <Link href="/admin/billing" aria-current={active === "billing" ? "page" : undefined} className={`${navLinkClass(active === "billing")} shrink-0 rounded-full px-2 py-1 sm:px-0 sm:py-0`}>Billing</Link>
       <Link href="/admin/projects" aria-current={active === "projects" ? "page" : undefined} className={`${navLinkClass(active === "projects")} shrink-0 rounded-full px-2 py-1 sm:px-0 sm:py-0`}>Portfolio CMS</Link>
       <Link href="/admin/reviews" aria-current={active === "reviews" ? "page" : undefined} className={`${navLinkClass(active === "reviews")} shrink-0 rounded-full px-2 py-1 sm:px-0 sm:py-0`}>Reviews</Link>
     </nav>
   );
 }
 
-function PageHeading({ eyebrow, title, description, active }: { eyebrow: string; title: string; description: string; active: "operations" | "discovery" | "clients" }) {
+function PageHeading({ eyebrow, title, description, active }: { eyebrow: string; title: string; description: string; active: "operations" | "discovery" | "clients" | "billing" }) {
   return (
     <header className="border-b border-divider-strong pb-6">
       <div className="flex items-center justify-between gap-6">
@@ -901,5 +902,4 @@ export function AdminProjectOperations({ projectId }: { projectId: string }) {
     </main>
   );
 }
-
 

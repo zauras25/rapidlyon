@@ -51,8 +51,6 @@ export function ForgotPasswordForm() {
             maxLength={254}
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            aria-invalid={Boolean(error)}
-            aria-describedby={error ? "recovery-error" : undefined}
             className="ds-input"
           />
         </div>

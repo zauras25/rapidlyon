@@ -77,8 +77,6 @@ export function ClientAuthForm({ nextPath = "/client" }: { nextPath?: string }) 
                 setName(event.target.value);
                 setError("");
               }}
-              aria-invalid={Boolean(error)}
-              aria-describedby={error ? "client-auth-error" : undefined}
               className="ds-input"
             />
           </div>
@@ -96,8 +94,6 @@ export function ClientAuthForm({ nextPath = "/client" }: { nextPath?: string }) 
               setEmail(event.target.value);
               setError("");
             }}
-            aria-invalid={Boolean(error)}
-            aria-describedby={error ? "client-auth-error" : undefined}
             className="ds-input"
           />
         </div>
@@ -114,8 +110,6 @@ export function ClientAuthForm({ nextPath = "/client" }: { nextPath?: string }) 
               setPassword(event.target.value);
               setError("");
             }}
-            aria-invalid={Boolean(error)}
-            aria-describedby={error ? "client-auth-error" : undefined}
             className="ds-input"
           />
           {mode === "sign_up" ? <p className="mt-2 text-xs text-body-muted">Use at least 8 characters.</p> : null}

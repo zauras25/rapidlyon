@@ -439,6 +439,12 @@ export function ClientWorkspace() {
             />
           </Link>
           <div className="flex items-center gap-3">
+            <Link
+              href="/client/billing"
+              className="inline-flex min-h-11 items-center rounded-control px-3 text-sm font-semibold text-ink underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-deep"
+            >
+              Billing
+            </Link>
             <div className="min-w-0 max-w-[12rem] text-right sm:max-w-none">
               <p className="truncate text-sm font-semibold text-ink">{client.name}</p>
               <p className="text-xs text-body-muted">Project workspace</p>

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useEffect, useId, useState } from "react";
+import { FormEvent, useId, useState } from "react";
 import { ArrowRight, MessageCircle, Send } from "lucide-react";
 
 type PricingAssistantProps = {
@@ -183,12 +183,6 @@ function getAnswer(
 }
 
 export function PricingAssistant(props: PricingAssistantProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [question, setQuestion] = useState("");
-  const [messages, setMessages] = useState<Message[]>([]);
-  const inputId = useId();
-  const panelId = useId();
-
   const contextKey = [
     props.mode,
     props.pages,
@@ -200,10 +194,15 @@ export function PricingAssistant(props: PricingAssistantProps) {
     props.savings,
   ].join("|");
 
-  useEffect(() => {
-    setMessages([]);
-    setQuestion("");
-  }, [contextKey]);
+  return <PricingAssistantPanel key={contextKey} {...props} />;
+}
+
+function PricingAssistantPanel(props: PricingAssistantProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [question, setQuestion] = useState("");
+  const [messages, setMessages] = useState<Message[]>([]);
+  const inputId = useId();
+  const panelId = useId();
 
   const submitQuestion = (submittedQuestion = question) => {
     const trimmedQuestion = submittedQuestion.trim();

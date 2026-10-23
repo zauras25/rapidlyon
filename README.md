@@ -177,7 +177,21 @@ Review the effect of any change request on cost and schedule, and obtain written
 
 Work begins only after the agreement and payment terms are accepted.
 
-The website does not generate or accept proposals or contracts.
+### Commercial Records Foundation
+
+After applying the client delivery foundation, apply these migrations in order:
+
+1. `supabase/migrations/20261023001800_create_commercial_records.sql`
+2. `supabase/migrations/20261023001900_commercial_workflow_functions.sql`
+3. `supabase/migrations/20261023002000_commercial_acceptance_snapshot.sql`
+
+These migrations create ownership-linked proposal, agreement, invoice, line-item, and payment tables with RLS enabled and direct `anon`/`authenticated` access revoked, along with server-side workflow functions. Admin and client billing screens and authenticated commercial routes are connected; draft document updates and invoice totals are handled server-side.
+
+Online payments are intentionally disabled until the Safepay integration is implemented against its current official API and webhook-signature documentation and tested with real sandbox configuration. Setting `PAYMENT_PROVIDER=safepay` alone does not enable checkout. No payment is marked paid from a browser redirect, query parameter, or client-side state; payment confirmation requires a verified, idempotently reconciled provider event. Do not store card numbers, security codes, or other payment credentials in payment metadata.
+
+When Safepay sandbox access is available, keep its credentials and webhook secret in server-only environment variables; never expose them through `NEXT_PUBLIC_*` variables or commit them. Confirm the provider's exact credential names, checkout API, event identifiers, signature scheme, and callback configuration from the official documentation before implementing or enabling the provider. Until then, checkout returns an explicit unavailable response and invoice status is unchanged.
+
+Commercial emails use the existing Resend helper. Proposal-sent, agreement-ready, invoice-sent, proposal-accepted, and agreement-accepted notifications are triggered after their server-side status transition. Payment-received, payment-failed, invoice-paid admin, and receipt-available emails are pending a verified Safepay webhook and idempotent payment reconciliation; do not send them based on a client redirect or receipt-page view. A receipt is only exposed for a payment record with confirmed `paid` status and a completion timestamp.
 
 ### Client Delivery Data Foundation
 

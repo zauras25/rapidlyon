@@ -634,7 +634,7 @@ export function DiscoveryForm({ calendlyUrl = "" }: { calendlyUrl?: string }) {
                         {question.options.map((option) => {
                           const selected = Array.isArray(form.answers[question.key]) && (form.answers[question.key] as string[]).includes(option);
                           return (
-                            <label key={option} className={`cursor-pointer rounded-full border px-3 py-2 text-sm ${selected ? "border-ink bg-accent-soft" : "border-divider-strong bg-surface"}`}>
+                            <label key={option} className={`discovery-choice cursor-pointer rounded-full border px-3 py-2 text-sm ${selected ? "border-ink bg-accent-soft" : "border-divider-strong bg-surface"}`}>
                               <input className="sr-only" type="checkbox" checked={Boolean(selected)} onChange={(event) => toggleChoice(question.key, option, event.target.checked)} />
                               {option}
                             </label>
@@ -681,16 +681,18 @@ export function DiscoveryForm({ calendlyUrl = "" }: { calendlyUrl?: string }) {
           <div>
             <label htmlFor="discovery-attachments" className="mb-2 block text-sm font-medium">Attachments <span className="font-normal text-muted">(optional)</span></label>
             <p className="mb-3 text-sm leading-6 text-body-muted">Attach up to 3 PDF, JPG, PNG, or WebP files, 5 MB each. Files are uploaded to private storage with your submission. Attachments are not saved in your browser draft.</p>
-            <label htmlFor="discovery-attachments" className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-black/15 px-4 py-2.5 text-sm font-medium hover:border-black/35">
-              <FileUp size={16} aria-hidden="true" /> Choose files
-            </label>
-            <input id="discovery-attachments" type="file" multiple accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp" className="sr-only" onChange={(event) => {
-              const selected = Array.from(event.target.files ?? []);
-              setSubmissionKey("");
-              setFileNotice(selected.length > 3 ? "Only the first 3 files were kept; remove or replace files as needed." : "");
-              setFiles(selected.slice(0, 3));
-              event.target.value = "";
-            }} />
+            <div className="discovery-file-control inline-flex">
+              <label htmlFor="discovery-attachments" className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-black/15 px-4 py-2.5 text-sm font-medium hover:border-black/35">
+                <FileUp size={16} aria-hidden="true" /> Choose files
+              </label>
+              <input id="discovery-attachments" type="file" multiple accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp" className="sr-only" onChange={(event) => {
+                const selected = Array.from(event.target.files ?? []);
+                setSubmissionKey("");
+                setFileNotice(selected.length > 3 ? "Only the first 3 files were kept; remove or replace files as needed." : "");
+                setFiles(selected.slice(0, 3));
+                event.target.value = "";
+              }} />
+            </div>
             {fileNotice ? <p className="mt-2 text-sm text-warning-deep">{fileNotice}</p> : null}
             {files.length > 0 ? (
               <ul className="mt-3 space-y-2">
@@ -715,7 +717,7 @@ export function DiscoveryForm({ calendlyUrl = "" }: { calendlyUrl?: string }) {
           <p className="mt-2 text-sm leading-6 text-body-muted">A request is not a confirmed booking. We will coordinate the next step by email.</p>
           <div className="mt-6 space-y-3">
             {[
-              { title: "Self-Guided Discovery", value: "Self-guided discovery", detail: "Complete this questionnaire at your own pace. We will review it and follow up." },
+              { title: "Self-Guided Discovery", value: "Self-guided discovery", detail: "Share project details at your own pace. We will review them and follow up." },
               { title: "Discovery Interview", value: "Discovery interview", detail: "Request a two-way conversation about your business, goals, and requirements." },
               { title: "Live Demo or Product Walkthrough", value: "Live demo or product walkthrough", detail: "Request a walkthrough of an existing website, app, product, or prototype." },
             ].map((method) => (

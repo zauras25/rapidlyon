@@ -34,15 +34,15 @@ export function SectionHeading({
         .join(" ")}
     >
       {eyebrow ? (
-        <p className={`mb-4 text-caption font-medium uppercase tracking-label-wide ${eyebrowColor}`}>
+        <p className={`mb-3 text-caption font-semibold uppercase tracking-label-wide ${eyebrowColor}`}>
           {eyebrow}
         </p>
       ) : null}
-      <Heading id={id} className={`text-3xl font-semibold tracking-display ${headingColor} sm:text-4xl md:text-5xl`}>
+      <Heading id={id} className={`text-2xl font-semibold leading-tight tracking-display-tight ${headingColor} sm:text-3xl md:text-4xl`}>
         {title}
       </Heading>
       {description ? (
-        <p className={`mt-4 max-w-2xl text-base leading-7 ${descriptionColor} md:text-lg`}>
+        <p className={`mt-3 max-w-2xl text-base leading-7 ${descriptionColor} md:text-lg md:leading-8`}>
           {description}
         </p>
       ) : null}

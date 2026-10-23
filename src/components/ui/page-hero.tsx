@@ -18,15 +18,15 @@ export function PageHero({
   const dark = tone === "dark";
 
   return (
-    <section className={dark ? "overflow-hidden bg-ink text-paper" : "bg-paper"}>
+    <section className={dark ? "bg-ink text-paper" : "bg-paper"}>
       <div className="ds-shell page-hero">
         <div className="page-hero-copy">
           <p className={dark ? "ds-eyebrow text-accent" : "ds-eyebrow"}>{eyebrow}</p>
-          <h1 className={dark ? "ds-page-title mt-5 max-w-5xl text-paper" : "ds-page-title mt-5 max-w-5xl text-ink"}>
+          <h1 className={dark ? "ds-page-title mt-4 max-w-5xl text-paper sm:mt-5" : "ds-page-title mt-4 max-w-5xl text-ink sm:mt-5"}>
             {title}
           </h1>
           {description ? (
-            <p className={dark ? "mt-6 max-w-2xl text-base leading-8 text-paper/70 sm:text-lg" : "mt-6 max-w-2xl text-base leading-8 text-body sm:text-lg"}>
+            <p className={dark ? "mt-5 max-w-2xl text-base leading-7 text-paper/75 sm:text-lg sm:leading-8" : "mt-5 max-w-2xl text-base leading-7 text-body sm:text-lg sm:leading-8"}>
               {description}
             </p>
           ) : null}

@@ -1,12 +1,19 @@
 import Link from "next/link";
 import type { ComponentProps, ButtonHTMLAttributes } from "react";
 
-export type ButtonVariant = "primary" | "secondary" | "ghost";
+export type ButtonVariant =
+  | "primary"
+  | "secondary"
+  | "ghost"
+  | "destructive"
+  | "link";
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary: "button-primary",
   secondary: "button-secondary",
   ghost: "button-ghost",
+  destructive: "button-destructive",
+  link: "button-link",
 };
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {

@@ -13,7 +13,7 @@ export function Card({
     variant === "elevated"
       ? "surface-card"
       : variant === "soft"
-        ? "rounded-panel border border-divider bg-surface-soft shadow-soft"
+        ? "rounded-panel border border-divider bg-surface-soft"
         : "surface-panel";
 
   return <div className={`${surfaceClass} ${className}`.trim()} {...props} />;

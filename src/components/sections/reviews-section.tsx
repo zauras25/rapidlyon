@@ -127,19 +127,7 @@ export function ReviewsSection({ displayOnly = false }: { displayOnly?: boolean 
       return null;
     }
 
-    if (reviewsStatus === "error") {
-      return (
-        <section className="border-y border-divider bg-surface">
-          <div className="ds-shell py-8">
-            <p role="status" className="text-sm text-body-muted">
-              {reviewsMessage || "Published reviews are temporarily unavailable."}
-            </p>
-          </div>
-        </section>
-      );
-    }
-
-    if (reviews.length === 0) {
+    if (reviewsStatus === "error" || reviews.length === 0) {
       return null;
     }
 

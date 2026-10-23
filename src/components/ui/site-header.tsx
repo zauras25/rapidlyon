@@ -24,6 +24,7 @@ export function SiteHeader() {
   const [accountError, setAccountError] = useState(false);
   const pathname = usePathname();
   const accountMenuRef = useRef<HTMLDivElement>(null);
+  const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     let active = true;
@@ -81,6 +82,20 @@ export function SiteHeader() {
     };
   }, [accountOpen]);
 
+  useEffect(() => {
+    if (!open) return;
+
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpen(false);
+        mobileMenuButtonRef.current?.focus();
+      }
+    };
+
+    document.addEventListener("keydown", closeOnEscape);
+    return () => document.removeEventListener("keydown", closeOnEscape);
+  }, [open]);
+
   async function signOut() {
     setAccountOpen(false);
     try {
@@ -113,7 +128,7 @@ export function SiteHeader() {
           />
         </Link>
 
-        <nav aria-label="Main navigation" className="site-header-v9-nav hidden items-center gap-1 min-[75rem]:flex">
+        <nav aria-label="Main navigation" className="site-header-v9-nav hidden items-center min-[75rem]:flex">
           {siteConfig.navigation.map((item) => (
             <Link
               key={item.href}
@@ -123,7 +138,7 @@ export function SiteHeader() {
                   ? "page"
                   : undefined
               }
-              className="nav-link site-header-v9-link text-xl font-semibold text-ink/72"
+              className="nav-link site-header-v9-link"
             >
               {item.label}
             </Link>
@@ -157,10 +172,10 @@ export function SiteHeader() {
             ) : (
               <Link
                 href="/client/login"
-                title={accountError ? "Account status could not be checked" : undefined}
+                title={accountError ? "Account status could not be checked. Sign in to continue." : undefined}
                 className="site-header-v9-account text-base font-semibold text-ink/72 transition-colors hover:text-ink"
               >
-                {accountError ? "Account status unavailable — Log in" : "Register / Log in"}
+                {accountError ? "Log in" : "Register / Log in"}
               </Link>
             )}
             {accountError && !firstName ? <span role="status" className="sr-only">Account status could not be checked. Sign in to continue.</span> : null}
@@ -171,11 +186,12 @@ export function SiteHeader() {
         </div>
 
         <button
+          ref={mobileMenuButtonRef}
           type="button"
           aria-label={open ? "Close navigation" : "Open navigation"}
           aria-controls="mobile-navigation"
           aria-expanded={open}
-          className="input-focus-ring inline-flex size-11 items-center justify-center rounded-full border border-divider-strong bg-surface-soft text-ink transition-colors hover:bg-paper min-[75rem]:hidden"
+          className="input-focus-ring inline-flex size-11 items-center justify-center rounded-control border border-divider-strong bg-surface-soft text-ink transition-colors hover:bg-paper min-[75rem]:hidden"
           onClick={() => setOpen((value) => !value)}
         >
           {open ? <X size={20} /> : <Menu size={20} />}
@@ -185,11 +201,11 @@ export function SiteHeader() {
       <div
         id="mobile-navigation"
         hidden={!open}
-        className="border-t border-divider bg-paper/98 shadow-soft min-[75rem]:hidden"
+        className="border-t border-divider bg-paper min-[75rem]:hidden"
       >
         <nav
           aria-label="Mobile navigation"
-          className="ds-shell flex flex-col gap-4 py-5 text-base font-medium text-ink"
+          className="ds-shell flex flex-col gap-1 py-4 text-base font-medium text-ink"
         >
           {siteConfig.navigation.map((item) => (
             <Link
@@ -201,7 +217,7 @@ export function SiteHeader() {
                   ? "page"
                   : undefined
               }
-              className="nav-link site-header-v9-link py-1 text-xl text-ink/80"
+              className="nav-link site-header-v9-link"
             >
               {item.label}
             </Link>
@@ -210,25 +226,25 @@ export function SiteHeader() {
             <>
               <p className="px-4 text-base font-semibold text-ink">{firstName}</p>
               {accountError ? <p role="alert" className="px-4 text-sm text-danger-strong">Account access could not be verified.</p> : null}
-              <Link href="/client" onClick={() => setOpen(false)} className="nav-link site-header-v9-link py-1 text-xl text-ink/80">
+              <Link href="/client" onClick={() => setOpen(false)} className="nav-link site-header-v9-link">
                 My Projects
               </Link>
-              <button type="button" onClick={signOut} className="nav-link site-header-v9-link py-1 text-left text-xl text-ink/80">
+              <button type="button" onClick={signOut} className="nav-link site-header-v9-link text-left">
                 Sign out
               </button>
             </>
           ) : (
             <>
               {accountError ? <p role="alert" className="px-4 text-sm text-danger-strong">Account status could not be checked.</p> : null}
-              <Link href="/client/login" onClick={() => setOpen(false)} className="nav-link site-header-v9-link py-1 text-xl text-ink/80">
-                {accountError ? "Account status unavailable — Log in" : "Register / Log in"}
+              <Link href="/client/login" onClick={() => setOpen(false)} className="nav-link site-header-v9-link">
+                {accountError ? "Log in" : "Register / Log in"}
               </Link>
             </>
           )}
           <ButtonLink
             href="/discovery"
             onClick={() => setOpen(false)}
-            className="mt-2 py-2.5"
+            className="mt-2 w-full py-3"
           >
             Start a Project
           </ButtonLink>

@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 type CommercialProject = {
@@ -23,6 +23,26 @@ function formatJson(value: Record<string, unknown>) {
 }
 
 export function ProjectCommercialEditor({ project, onSaved }: Props) {
+  const editorKey = JSON.stringify({
+    id: project.id,
+    status: project.status,
+    package_key: project.package_key,
+    package_snapshot: project.package_snapshot,
+    agreed_price: project.agreed_price,
+    currency: project.currency,
+    agreed_scope: project.agreed_scope,
+  });
+
+  return (
+    <ProjectCommercialEditorForm
+      key={editorKey}
+      project={project}
+      onSaved={onSaved}
+    />
+  );
+}
+
+function ProjectCommercialEditorForm({ project, onSaved }: Props) {
   const router = useRouter();
 
   const [packageKey, setPackageKey] = useState(project.package_key ?? "");
@@ -39,16 +59,6 @@ export function ProjectCommercialEditor({ project, onSaved }: Props) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
-
-  useEffect(() => {
-    setPackageKey(project.package_key ?? "");
-    setAgreedPrice(
-      project.agreed_price === null ? "" : String(project.agreed_price),
-    );
-    setCurrency(project.currency ?? "");
-    setPackageSnapshot(formatJson(project.package_snapshot));
-    setAgreedScope(formatJson(project.agreed_scope));
-  }, [project]);
 
   if (project.status !== "draft") {
     return (
