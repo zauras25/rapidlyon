@@ -1,7 +1,7 @@
-"use client";
+﻿"use client";
 
 import Image from "next/image";
-import { LayoutDashboard, Inbox, FolderKanban, CreditCard, PanelsTopLeft, Star, Bell, Search, ArrowUpRight, ChevronRight, Menu, X, RefreshCw, Clock3, CheckCircle2, AlertCircle, Send, FileCheck2, GitPullRequest, Activity,  } from "lucide-react";
+import { LayoutDashboard, Inbox, FolderKanban, CreditCard, PanelsTopLeft, Star, Bell, Search, ArrowUpRight, ChevronRight, Menu, RefreshCw, Clock3, CheckCircle2, AlertCircle, Send, FileCheck2, GitPullRequest, Activity,  } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -242,18 +242,6 @@ function PageHeading({ eyebrow, title, description, active }: { eyebrow: string;
   );
 }
 
-function SummaryCard({ label, value, href }: { label: string; value: number; href?: string }) {
-  const contents = (
-    <>
-      <span className="text-sm text-body-muted">{label}</span>
-      <span className="mt-2 block text-3xl font-semibold text-ink">{value}</span>
-    </>
-  );
-  return href
-    ? <Link href={href} className="rounded-xl border border-divider bg-surface p-4 shadow-card hover:border-divider-strong">{contents}</Link>
-    : <div className="rounded-xl border border-divider bg-surface p-4 shadow-card">{contents}</div>;
-}
-
 function ProjectLink({ project, children }: { project: Project; children: React.ReactNode }) {
   return <Link href={`/admin/operations/projects/${project.id}`} className="font-semibold text-ink underline decoration-divider-strong underline-offset-4 hover:decoration-ink">{children}</Link>;
 }
@@ -283,7 +271,13 @@ export function AdminOperationsDashboard() {
     } catch (e) { setError(e instanceof Error ? e.message : "Operations data could not be loaded."); }
     finally { setLoading(false); }
   }, [router, search, status]);
-  useEffect(() => { void load(); }, [load]);
+  useEffect(() => {
+  const timer = window.setTimeout(() => {
+    void load();
+  }, 0);
+
+  return () => window.clearTimeout(timer);
+}, [load]);
   const counts = data?.counts;
   const nav = [
     {label:"Overview",href:"/admin/operations",icon:LayoutDashboard,active:true},
@@ -311,30 +305,30 @@ export function AdminOperationsDashboard() {
     <div className="r-os-main">
       <header className="r-os-topbar"><div className="r-os-top-left"><button className="r-os-menu" aria-label="Open navigation" onClick={()=>setMobileMenu(true)}><Menu size={21}/></button><span className="r-os-breadcrumb">Workspace <ChevronRight size={14}/> <strong>Overview</strong></span></div><div className="r-os-top-right"><span className="r-os-live"><span/> Operations online</span><button className="r-os-icon-button" onClick={()=>void load()} aria-label="Refresh dashboard" title="Refresh dashboard"><RefreshCw size={17} className={loading?"r-os-spin":""}/></button><Link href="/admin/discovery" className="r-os-icon-button" aria-label="Discovery inbox"><Bell size={18}/>{Boolean(counts?.newDiscovery)&&<i/>}</Link><span className="r-os-avatar">R</span></div></header>
       <main className="r-os-content">
-        <div className="r-os-heading"><div><div className="r-os-eyebrow"><span/> STUDIO OVERVIEW <span className="r-os-eyebrow-line"/></div><h1>Good morning <span className="r-os-wave">✳</span></h1><p>Here’s what’s happening across your studio today.</p></div><Link className="r-os-primary" href="/admin/discovery">Open discovery <ArrowUpRight size={17}/></Link></div>
+        <div className="r-os-heading"><div><div className="r-os-eyebrow"><span/> STUDIO OVERVIEW <span className="r-os-eyebrow-line"/></div><h1>Good morning <span className="r-os-wave">âœ³</span></h1><p>Hereâ€™s whatâ€™s happening across your studio today.</p></div><Link className="r-os-primary" href="/admin/discovery">Open discovery <ArrowUpRight size={17}/></Link></div>
         {error&&<div className="r-os-error" role="alert"><AlertCircle size={18}/><span>{error}</span><button onClick={()=>void load()}>Retry</button></div>}
-        {loading&&!data&&<div className="r-os-loading" role="status"><RefreshCw size={20} className="r-os-spin"/> Loading studio operations…</div>}
+        {loading&&!data&&<div className="r-os-loading" role="status"><RefreshCw size={20} className="r-os-spin"/> Loading studio operationsâ€¦</div>}
         {counts&&data&&<>
           <div className="r-os-section-title"><div><h2>At a glance</h2><p>Your studio performance and workload</p></div><span className="r-os-today">Live overview</span></div>
           <div className="r-os-stats">{stats.map(s=><Link href={s.href} key={s.label} className="r-os-stat"><span className={`r-os-stat-icon ${s.tone}`}><s.icon size={20}/></span><ArrowUpRight className="r-os-stat-arrow" size={17}/><strong>{s.value}</strong><span className="r-os-stat-label">{s.label}</span><span className="r-os-stat-foot">View details <ChevronRight size={13}/></span></Link>)}</div>
           <div className="r-os-columns">
             <section className="r-os-panel r-os-priority"><div className="r-os-panel-head"><div><span className="r-os-kicker">YOUR WORKSPACE</span><h2>Priority inbox <span className="r-os-count">{counts.newDiscovery+counts.pendingInvitations+counts.pendingDeliverables+counts.changeRequests+counts.dueMilestones+counts.pendingScopeChanges}</span></h2><p>Items that may need your attention</p></div><Link href="/admin/discovery" className="r-os-text-link">View leads <ArrowUpRight size={15}/></Link></div>
               <div className="r-os-task-list">
-                {data.attention.discovery.map(lead=><Link className="r-os-task" key={lead.id} href={`/admin/discovery?q=${encodeURIComponent(lead.email)}`}><span className="r-os-task-icon amber"><Inbox size={18}/></span><span className="r-os-task-body"><strong>{lead.full_name}</strong><small>New discovery · {lead.company || "Individual client"}</small><em>{lead.services.join(", ") || "Service not specified"} · {dateLabel(lead.created_at)}</em></span><span className="r-os-tag amber">New lead</span><ChevronRight size={16} className="r-os-chevron"/></Link>)}
+                {data.attention.discovery.map(lead=><Link className="r-os-task" key={lead.id} href={`/admin/discovery?q=${encodeURIComponent(lead.email)}`}><span className="r-os-task-icon amber"><Inbox size={18}/></span><span className="r-os-task-body"><strong>{lead.full_name}</strong><small>New discovery Â· {lead.company || "Individual client"}</small><em>{lead.services.join(", ") || "Service not specified"} Â· {dateLabel(lead.created_at)}</em></span><span className="r-os-tag amber">New lead</span><ChevronRight size={16} className="r-os-chevron"/></Link>)}
                 {data.attention.invitations.map(item=><Link className="r-os-task" key={item.id} href={item.project?`/admin/operations/projects/${item.project.id}`:"/admin/clients"}><span className="r-os-task-icon purple"><Send size={18}/></span><span className="r-os-task-body"><strong>{item.project?.name||item.email}</strong><small>Invitation awaiting response</small><em>Expires {dateLabel(item.expires_at)}</em></span><span className="r-os-tag">Pending</span><ChevronRight size={16} className="r-os-chevron"/></Link>)}
                 {data.attention.deliverables.map(item=><Link className="r-os-task" key={item.id} href={item.project?`/admin/operations/projects/${item.project.id}`:"/admin/clients"}><span className="r-os-task-icon green"><FileCheck2 size={18}/></span><span className="r-os-task-body"><strong>{item.title}</strong><small>{item.project?.name||"Deliverable"}</small><em>{item.status.replaceAll("_"," ")}</em></span><span className="r-os-tag">Review</span><ChevronRight size={16} className="r-os-chevron"/></Link>)}
-                {data.attention.scopeChanges.map(item=><Link className="r-os-task" key={item.id} href={item.project?`/admin/operations/projects/${item.project.id}`:"/admin/clients"}><span className="r-os-task-icon purple"><GitPullRequest size={18}/></span><span className="r-os-task-body"><strong>{item.title}</strong><small>Scope change · {item.requester}</small><em>{ageLabel(item.created_at)}</em></span><span className="r-os-tag">Decision</span><ChevronRight size={16} className="r-os-chevron"/></Link>)}
+                {data.attention.scopeChanges.map(item=><Link className="r-os-task" key={item.id} href={item.project?`/admin/operations/projects/${item.project.id}`:"/admin/clients"}><span className="r-os-task-icon purple"><GitPullRequest size={18}/></span><span className="r-os-task-body"><strong>{item.title}</strong><small>Scope change Â· {item.requester}</small><em>{ageLabel(item.created_at)}</em></span><span className="r-os-tag">Decision</span><ChevronRight size={16} className="r-os-chevron"/></Link>)}
                 {data.attention.milestones.map(item=><Link className="r-os-task" key={item.id} href={item.project?`/admin/operations/projects/${item.project.id}`:"/admin/clients"}><span className="r-os-task-icon red"><Clock3 size={18}/></span><span className="r-os-task-body"><strong>{item.title}</strong><small>{item.project?.name||"Milestone"}</small><em>Due {dateLabel(item.due_date)}</em></span><span className={`r-os-tag ${item.overdue?"red":"amber"}`}>{item.overdue?"Overdue":"Due soon"}</span><ChevronRight size={16} className="r-os-chevron"/></Link>)}
                 {!data.attention.discovery.length&&!data.attention.invitations.length&&!data.attention.deliverables.length&&!data.attention.scopeChanges.length&&!data.attention.milestones.length&&<div className="r-os-empty"><CheckCircle2 size={28}/><strong>All caught up!</strong><span>No urgent items need attention right now.</span></div>}
               </div>
               <div className="r-os-panel-footer"><span><span className="r-os-dot"/> Synced with studio records</span><button onClick={()=>void load()} disabled={loading}><RefreshCw size={14}/> Refresh</button></div>
             </section>
-            <div className="r-os-sidepanels"><section className="r-os-panel"><div className="r-os-panel-head"><div><span className="r-os-kicker">PIPELINE</span><h2>Client invitations</h2><p>Invitation status overview</p></div><span className="r-os-mini-icon"><Send size={17}/></span></div><div className="r-os-pipeline"><div><strong>{data.invitationCounts.pending}</strong><span>Pending</span></div><div><strong>{data.invitationCounts.accepted}</strong><span>Accepted</span></div><div><strong>{data.invitationCounts.expired}</strong><span>Expired</span></div></div><div className="r-os-pipeline-bar"><span style={{width:`${data.invitationCounts.pending+data.invitationCounts.accepted+data.invitationCounts.expired+data.invitationCounts.revoked?100*data.invitationCounts.accepted/(data.invitationCounts.pending+data.invitationCounts.accepted+data.invitationCounts.expired+data.invitationCounts.revoked):0}%`}}/></div><p className="r-os-muted-small">{data.invitationCounts.revoked} revoked · {data.invitationPipeline.length} recent records</p></section>
+            <div className="r-os-sidepanels"><section className="r-os-panel"><div className="r-os-panel-head"><div><span className="r-os-kicker">PIPELINE</span><h2>Client invitations</h2><p>Invitation status overview</p></div><span className="r-os-mini-icon"><Send size={17}/></span></div><div className="r-os-pipeline"><div><strong>{data.invitationCounts.pending}</strong><span>Pending</span></div><div><strong>{data.invitationCounts.accepted}</strong><span>Accepted</span></div><div><strong>{data.invitationCounts.expired}</strong><span>Expired</span></div></div><div className="r-os-pipeline-bar"><span style={{width:`${data.invitationCounts.pending+data.invitationCounts.accepted+data.invitationCounts.expired+data.invitationCounts.revoked?100*data.invitationCounts.accepted/(data.invitationCounts.pending+data.invitationCounts.accepted+data.invitationCounts.expired+data.invitationCounts.revoked):0}%`}}/></div><p className="r-os-muted-small">{data.invitationCounts.revoked} revoked Â· {data.invitationPipeline.length} recent records</p></section>
             <section className="r-os-panel"><div className="r-os-panel-head"><div><span className="r-os-kicker">WORKLOAD</span><h2>Delivery health</h2><p>Outstanding operational items</p></div><span className="r-os-mini-icon"><Activity size={17}/></span></div><div className="r-os-health">{[{label:"Client change requests",n:counts.changeRequests},{label:"Scope decisions",n:counts.pendingScopeChanges},{label:"Reviews to moderate",n:counts.pendingReviews},{label:"Completed projects",n:counts.completedProjects}].map(x=><div key={x.label}><span>{x.label}</span><strong>{x.n}</strong></div>)}</div></section></div>
           </div>
-          <section className="r-os-panel r-os-projects" id="projects"><div className="r-os-panel-head"><div><span className="r-os-kicker">DELIVERY</span><h2>Client projects</h2><p>{counts.activeProjects} active · {counts.completedProjects} completed</p></div><Link href="/admin/clients" className="r-os-text-link">Manage projects <ArrowUpRight size={15}/></Link></div><div className="r-os-filters"><div className="r-os-search"><Search size={17}/><input aria-label="Search projects or clients" placeholder="Search projects, clients or email…" type="search" value={searchInput} onChange={e=>setSearchInput(e.target.value)}/></div><select aria-label="Filter by project status" value={status} onChange={e=>setStatus(e.target.value)}>{statusOptions.map(([v,l])=><option key={v} value={v}>{l}</option>)}</select></div>{loading&&<p className="r-os-muted-small r-os-updating">Updating results…</p>}<div className="r-os-table-wrap"><table className="r-os-table"><thead><tr><th>PROJECT / CLIENT</th><th>STATUS</th><th>CURRENT MILESTONE</th><th>PROGRESS</th><th>NEXT ACTION</th><th>UPDATED</th></tr></thead><tbody>{data.projects.map(project=><tr key={project.id}><td><ProjectLink project={project}>{project.name}</ProjectLink><small>{project.client.name} · {project.service_type}</small></td><td><span className={`r-os-status ${project.status}`}>{project.status}</span></td><td>{project.progress.currentMilestone?.title||"Not scheduled"}</td><td><div className="r-os-progress"><span style={{width:`${Math.max(0,Math.min(100,project.progress.percentage))}%`}}/></div><small>{project.progress.percentage}% complete</small></td><td>{project.nextAction}</td><td>{dateLabel(project.updated_at)}</td></tr>)}{!data.projects.length&&<tr><td colSpan={6}><div className="r-os-table-empty"><FolderKanban size={27}/><strong>No projects found</strong><span>{search||status!=="all"?"Try a different search or status filter.":"Projects will appear here when they are created."}</span></div></td></tr>}</tbody></table></div></section>
-          <section className="r-os-bottom-grid"><div className="r-os-panel"><div className="r-os-panel-head"><div><span className="r-os-kicker">RECENT UPDATES</span><h2>Project activity</h2></div><Activity size={18}/></div>{data.activity.length?<div className="r-os-events">{data.activity.map(e=><div key={e.id}><span className="r-os-event-dot"/><div><strong>{e.event_type.replaceAll("_"," ")}</strong><small>{e.project?.name||"Project"} · {timestampLabel(e.created_at)}</small></div></div>)}</div>:<div className="r-os-empty small"><Activity size={24}/><strong>Nothing new yet</strong><span>Project activity will show up here.</span></div>}</div><div className="r-os-panel" id="milestones"><div className="r-os-panel-head"><div><span className="r-os-kicker">COMING UP</span><h2>Milestones</h2></div><Clock3 size={18}/></div>{data.attention.milestones.length?<div className="r-os-events">{data.attention.milestones.map(m=><div key={m.id}><span className="r-os-event-dot"/><div><strong>{m.title}</strong><small>{m.project?.name||"Project"} · {dateLabel(m.due_date)} · {m.overdue?"Overdue":"Due soon"}</small></div></div>)}</div>:<div className="r-os-empty small"><CheckCircle2 size={24}/><strong>On schedule</strong><span>No overdue or upcoming milestones within 7 days.</span></div>}</div></section>
-          <footer className="r-os-footer"><span>© 2026 Rapidlyon Studio OS</span><span>Designed for focused operations <span className="r-os-footer-heart">✳</span></span></footer>
+          <section className="r-os-panel r-os-projects" id="projects"><div className="r-os-panel-head"><div><span className="r-os-kicker">DELIVERY</span><h2>Client projects</h2><p>{counts.activeProjects} active Â· {counts.completedProjects} completed</p></div><Link href="/admin/clients" className="r-os-text-link">Manage projects <ArrowUpRight size={15}/></Link></div><div className="r-os-filters"><div className="r-os-search"><Search size={17}/><input aria-label="Search projects or clients" placeholder="Search projects, clients or emailâ€¦" type="search" value={searchInput} onChange={e=>setSearchInput(e.target.value)}/></div><select aria-label="Filter by project status" value={status} onChange={e=>setStatus(e.target.value)}>{statusOptions.map(([v,l])=><option key={v} value={v}>{l}</option>)}</select></div>{loading&&<p className="r-os-muted-small r-os-updating">Updating resultsâ€¦</p>}<div className="r-os-table-wrap"><table className="r-os-table"><thead><tr><th>PROJECT / CLIENT</th><th>STATUS</th><th>CURRENT MILESTONE</th><th>PROGRESS</th><th>NEXT ACTION</th><th>UPDATED</th></tr></thead><tbody>{data.projects.map(project=><tr key={project.id}><td><ProjectLink project={project}>{project.name}</ProjectLink><small>{project.client.name} Â· {project.service_type}</small></td><td><span className={`r-os-status ${project.status}`}>{project.status}</span></td><td>{project.progress.currentMilestone?.title||"Not scheduled"}</td><td><div className="r-os-progress"><span style={{width:`${Math.max(0,Math.min(100,project.progress.percentage))}%`}}/></div><small>{project.progress.percentage}% complete</small></td><td>{project.nextAction}</td><td>{dateLabel(project.updated_at)}</td></tr>)}{!data.projects.length&&<tr><td colSpan={6}><div className="r-os-table-empty"><FolderKanban size={27}/><strong>No projects found</strong><span>{search||status!=="all"?"Try a different search or status filter.":"Projects will appear here when they are created."}</span></div></td></tr>}</tbody></table></div></section>
+          <section className="r-os-bottom-grid"><div className="r-os-panel"><div className="r-os-panel-head"><div><span className="r-os-kicker">RECENT UPDATES</span><h2>Project activity</h2></div><Activity size={18}/></div>{data.activity.length?<div className="r-os-events">{data.activity.map(e=><div key={e.id}><span className="r-os-event-dot"/><div><strong>{e.event_type.replaceAll("_"," ")}</strong><small>{e.project?.name||"Project"} Â· {timestampLabel(e.created_at)}</small></div></div>)}</div>:<div className="r-os-empty small"><Activity size={24}/><strong>Nothing new yet</strong><span>Project activity will show up here.</span></div>}</div><div className="r-os-panel" id="milestones"><div className="r-os-panel-head"><div><span className="r-os-kicker">COMING UP</span><h2>Milestones</h2></div><Clock3 size={18}/></div>{data.attention.milestones.length?<div className="r-os-events">{data.attention.milestones.map(m=><div key={m.id}><span className="r-os-event-dot"/><div><strong>{m.title}</strong><small>{m.project?.name||"Project"} Â· {dateLabel(m.due_date)} Â· {m.overdue?"Overdue":"Due soon"}</small></div></div>)}</div>:<div className="r-os-empty small"><CheckCircle2 size={24}/><strong>On schedule</strong><span>No overdue or upcoming milestones within 7 days.</span></div>}</div></section>
+          <footer className="r-os-footer"><span>Â© 2026 Rapidlyon Studio OS</span><span>Designed for focused operations <span className="r-os-footer-heart">âœ³</span></span></footer>
         </>}
       </main>
     </div>
@@ -467,14 +461,14 @@ export function AdminProjectOperations({ projectId }: { projectId: string }) {
     }
   }
 
-  if (loading) return <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8"><p role="status" className="text-sm text-body-muted">Loading project operations…</p></main>;
+  if (loading) return <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8"><p role="status" className="text-sm text-body-muted">Loading project operationsâ€¦</p></main>;
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       <PageHeading
-        eyebrow="Admin operations · Project"
+        eyebrow="Admin operations Â· Project"
         title={project?.name ?? "Project operations"}
-        description={project ? `${project.client.name} · ${project.client.email}` : "Operational details and delivery status."}
+        description={project ? `${project.client.name} Â· ${project.client.email}` : "Operational details and delivery status."}
         active="clients"
       />
       {error ? <p role="alert" className="mt-6 rounded-xl border border-danger-line bg-danger-soft p-4 text-sm text-danger-deep">{error}</p> : null}
@@ -487,7 +481,7 @@ export function AdminProjectOperations({ projectId }: { projectId: string }) {
             <section className="rounded-xl border border-divider bg-surface p-5 lg:col-span-2">
               <h2 className="text-lg font-semibold text-ink">Project overview</h2>
               <dl className="mt-4 grid gap-4 text-sm sm:grid-cols-2">
-                <div><dt className="text-body-muted">Client</dt><dd className="mt-1 font-medium text-ink">{project.client.name} · {project.client.email}</dd></div>
+                <div><dt className="text-body-muted">Client</dt><dd className="mt-1 font-medium text-ink">{project.client.name} Â· {project.client.email}</dd></div>
                 <div><dt className="text-body-muted">Service</dt><dd className="mt-1 font-medium text-ink">{project.service_type}</dd></div>
                 <div><dt className="text-body-muted">Status</dt><dd className="mt-1 font-medium capitalize text-ink">{project.status}</dd></div>
                 <div><dt className="text-body-muted">Package</dt><dd className="mt-1 font-medium text-ink">{project.package_key ?? "Not specified"}</dd></div>
@@ -530,7 +524,7 @@ export function AdminProjectOperations({ projectId }: { projectId: string }) {
                 {project.review ? (
                   <p className="mt-1 text-sm text-body-muted">
                     {project.review.status === "approved" ? "Published" : project.review.status === "pending" ? "Awaiting moderation" : "Not published"}
-                    {" · "}{project.review.rating}/5 · Submitted {timestampLabel(project.review.created_at)}
+                    {" Â· "}{project.review.rating}/5 Â· Submitted {timestampLabel(project.review.created_at)}
                   </p>
                 ) : <p className="mt-1 text-sm text-body-muted">No review has been submitted for this project.</p>}
               </div>
@@ -538,7 +532,7 @@ export function AdminProjectOperations({ projectId }: { projectId: string }) {
             </div>
             {project.review ? (
               <blockquote className="mt-4 whitespace-pre-wrap rounded-lg border border-divider bg-paper p-4 text-sm leading-6 text-body">
-                “{project.review.review}”
+                â€œ{project.review.review}â€
               </blockquote>
             ) : null}
           </section>
@@ -557,13 +551,13 @@ export function AdminProjectOperations({ projectId }: { projectId: string }) {
                     <div className="flex flex-wrap items-start justify-between gap-2">
                       <div>
                         <h3 className="font-semibold text-ink">{change.title}</h3>
-                        <p className="mt-1 text-xs text-body-muted">Requested by {change.requester} · {timestampLabel(change.created_at)}</p>
+                        <p className="mt-1 text-xs text-body-muted">Requested by {change.requester} Â· {timestampLabel(change.created_at)}</p>
                       </div>
                       <span className="rounded-full border border-divider px-3 py-1 text-xs capitalize text-body-muted">{change.status}</span>
                     </div>
                     <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-body-muted">{change.description}</p>
                     {change.decision_note ? <p className="mt-3 text-sm text-body"><span className="font-semibold">Admin note:</span> {change.decision_note}</p> : null}
-                    {change.reviewed_at ? <p className="mt-2 text-xs text-body-muted">Reviewed {timestampLabel(change.reviewed_at)}{change.reviewed_by ? ` · ${change.reviewed_by}` : ""}</p> : null}
+                    {change.reviewed_at ? <p className="mt-2 text-xs text-body-muted">Reviewed {timestampLabel(change.reviewed_at)}{change.reviewed_by ? ` Â· ${change.reviewed_by}` : ""}</p> : null}
                     {change.status === "requested" && project.status === "active" ? (
                       <div className="mt-4">
                         <label className="block text-sm font-medium text-ink">
@@ -577,8 +571,8 @@ export function AdminProjectOperations({ projectId }: { projectId: string }) {
                           />
                         </label>
                         <div className="mt-3 flex flex-wrap gap-2">
-                          <button type="button" disabled={Boolean(busyScopeChange)} onClick={() => void reviewScopeChange(change.id, "approve")} className="rounded-full bg-ink px-4 py-2 text-sm font-medium text-on-dark disabled:opacity-50">{busyScopeChange === change.id ? "Saving…" : "Approve change"}</button>
-                          <button type="button" disabled={Boolean(busyScopeChange)} onClick={() => void reviewScopeChange(change.id, "reject")} className="rounded-full border border-divider-strong px-4 py-2 text-sm font-medium text-ink disabled:opacity-50">{busyScopeChange === change.id ? "Saving…" : "Reject change"}</button>
+                          <button type="button" disabled={Boolean(busyScopeChange)} onClick={() => void reviewScopeChange(change.id, "approve")} className="rounded-full bg-ink px-4 py-2 text-sm font-medium text-on-dark disabled:opacity-50">{busyScopeChange === change.id ? "Savingâ€¦" : "Approve change"}</button>
+                          <button type="button" disabled={Boolean(busyScopeChange)} onClick={() => void reviewScopeChange(change.id, "reject")} className="rounded-full border border-divider-strong px-4 py-2 text-sm font-medium text-ink disabled:opacity-50">{busyScopeChange === change.id ? "Savingâ€¦" : "Reject change"}</button>
                         </div>
                       </div>
                     ) : null}
@@ -598,11 +592,11 @@ export function AdminProjectOperations({ projectId }: { projectId: string }) {
                 {project.milestones.map((milestone) => (
                   <li key={milestone.id} className="flex flex-wrap justify-between gap-4 py-4">
                     <div>
-                      <p className="font-semibold text-ink">{milestone.position + 1}. {milestone.title} <span className="text-xs font-normal capitalize text-body-muted">· {milestone.status.replaceAll("_", " ")}</span></p>
+                      <p className="font-semibold text-ink">{milestone.position + 1}. {milestone.title} <span className="text-xs font-normal capitalize text-body-muted">Â· {milestone.status.replaceAll("_", " ")}</span></p>
                       {milestone.description ? <p className="mt-1 text-sm text-body-muted">{milestone.description}</p> : null}
-                      {milestone.status === "client_review" ? <p className="mt-1 text-xs text-body-muted">Client: {milestone.client_approved_at ? "confirmed" : "waiting"} · Studio: {milestone.admin_approved_at ? "confirmed" : "waiting"}</p> : null}
+                      {milestone.status === "client_review" ? <p className="mt-1 text-xs text-body-muted">Client: {milestone.client_approved_at ? "confirmed" : "waiting"} Â· Studio: {milestone.admin_approved_at ? "confirmed" : "waiting"}</p> : null}
                     </div>
-                    <p className="text-sm text-body-muted">Start {dateLabel(milestone.start_date)} · Due {dateLabel(milestone.due_date)}</p>
+                    <p className="text-sm text-body-muted">Start {dateLabel(milestone.start_date)} Â· Due {dateLabel(milestone.due_date)}</p>
                   </li>
                 ))}
               </ol>
@@ -622,7 +616,7 @@ export function AdminProjectOperations({ projectId }: { projectId: string }) {
                   onClick={() => void completeProject()}
                   className="mt-4 rounded-full bg-ink px-5 py-2.5 text-sm font-medium text-on-dark disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {completingProject ? "Checking completion…" : "Complete project and record handoff"}
+                  {completingProject ? "Checking completionâ€¦" : "Complete project and record handoff"}
                 </button>
               </>
             )}
@@ -638,7 +632,7 @@ export function AdminProjectOperations({ projectId }: { projectId: string }) {
                       <div><h3 className="font-semibold text-ink">{item.title}</h3><p className="mt-1 text-sm text-body-muted">{item.description}</p></div>
                       <span className="rounded-full border border-divider px-3 py-1 text-xs capitalize text-body-muted">{item.status.replaceAll("_", " ")}</span>
                     </div>
-                    <p className="mt-2 text-xs text-body-muted">Submitted {dateLabel(item.submitted_at)} · Due {dateLabel(item.due_date)}</p>
+                    <p className="mt-2 text-xs text-body-muted">Submitted {dateLabel(item.submitted_at)} Â· Due {dateLabel(item.due_date)}</p>
                     {item.feedback.length ? (
                       <ul className="mt-3 space-y-2 border-t border-divider pt-3">
                         {item.feedback.map((feedback) => <li key={feedback.id} className="text-sm text-body-muted"><span className="font-medium text-ink">{dateLabel(feedback.created_at)}:</span> {feedback.message}</li>)}
@@ -660,7 +654,7 @@ export function AdminProjectOperations({ projectId }: { projectId: string }) {
                         className="mt-3 rounded-full border border-black/15 px-4 py-2 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         {busyDeliverable === item.id
-                          ? "Saving…"
+                          ? "Savingâ€¦"
                           : item.status === "draft" || item.status === "changes_requested"
                             ? "Start work"
                             : item.status === "in_progress"
@@ -681,8 +675,8 @@ export function AdminProjectOperations({ projectId }: { projectId: string }) {
                 <ul className="mt-3 divide-y divide-divider">
                   {project.invitations.map((invitation) => (
                     <li key={invitation.id} className="py-3 first:pt-0 last:pb-0">
-                      <p className="font-medium text-ink">{invitation.email} <span className="text-xs font-normal capitalize text-body-muted">· {invitation.status}</span></p>
-                      <p className="mt-1 text-xs text-body-muted">Created {dateLabel(invitation.created_at)} · Expires {dateLabel(invitation.expires_at)}{invitation.accepted_at ? ` · Accepted ${dateLabel(invitation.accepted_at)}` : ""}</p>
+                      <p className="font-medium text-ink">{invitation.email} <span className="text-xs font-normal capitalize text-body-muted">Â· {invitation.status}</span></p>
+                      <p className="mt-1 text-xs text-body-muted">Created {dateLabel(invitation.created_at)} Â· Expires {dateLabel(invitation.expires_at)}{invitation.accepted_at ? ` Â· Accepted ${dateLabel(invitation.accepted_at)}` : ""}</p>
                     </li>
                   ))}
                 </ul>
@@ -709,4 +703,6 @@ export function AdminProjectOperations({ projectId }: { projectId: string }) {
     </main>
   );
 }
+
+
 
