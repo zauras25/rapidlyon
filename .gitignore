@@ -44,3 +44,10 @@ next-env.d.ts
 # local project archive
 rapidlyon_work.zip
 supabase/.temp/
+.env
+.env.*
+!.env.example
+node_modules/
+.next/
+*.pem
+*.key

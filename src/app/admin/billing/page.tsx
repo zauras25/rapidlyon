@@ -1,3 +1,4 @@
+import { StudioAdminFrame } from "@/components/ui/studio-admin-frame";
 import type { Metadata } from "next";
 import { CommercialAdmin } from "@/components/admin/commercial-admin";
 
@@ -7,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function AdminBillingPage() {
-  return <CommercialAdmin />;
+  return <StudioAdminFrame><CommercialAdmin /></StudioAdminFrame>;
 }

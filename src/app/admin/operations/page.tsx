@@ -9,6 +9,9 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
+// Admin authentication and redirects intentionally wait for the request.
+export const instant = false;
+
 export default async function AdminOperationsPage() {
   if (!discoveryAdminConfigured() || !getSupabaseServerConfig() || !(await isDiscoveryAdmin())) {
     redirect("/admin/discovery/login?next=%2Fadmin%2Foperations");

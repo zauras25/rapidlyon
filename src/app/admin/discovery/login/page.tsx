@@ -19,6 +19,9 @@ const adminRedirects = new Set([
   "/admin/reviews",
 ]);
 
+// Admin authentication and redirects intentionally wait for the request.
+export const instant = false;
+
 export default async function DiscoveryAdminLoginPage({
   searchParams,
 }: {

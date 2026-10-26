@@ -24,8 +24,15 @@ export function ForgotPasswordForm() {
       );
       if (resetError) throw resetError;
       setSent(true);
-    } catch {
-      setError("We could not send the reset email right now. Please try again shortly.");
+    } catch (caught) {
+      const message = caught instanceof Error ? caught.message.toLowerCase() : "";
+      if (message.includes("rate limit") || message.includes("too many")) {
+        setError("Too many recovery attempts. Please wait before trying again.");
+      } else if (message.includes("email") || message.includes("smtp") || message.includes("sending")) {
+        setError("The email provider could not send the recovery message. Contact support to check Supabase SMTP settings.");
+      } else {
+        setError("We could not send the reset email right now. Please try again shortly.");
+      }
     } finally {
       setBusy(false);
     }

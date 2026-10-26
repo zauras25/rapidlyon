@@ -20,31 +20,62 @@ export function PasswordResetForm() {
     let recoveryEventReceived = false;
     let unsubscribe = () => {};
 
-    void Promise.resolve()
-      .then(() => getSupabaseClient())
-      .then((supabase) => {
-        if (!active) return;
-
+    async function checkRecoveryLink() {
+      try {
+        const supabase = getSupabaseClient();
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
           if (!active) return;
           if (event === "PASSWORD_RECOVERY" && session) {
             recoveryEventReceived = true;
             setState("ready");
+          } else if (event === "SIGNED_OUT") {
+            setState("invalid");
           }
-          if (event === "SIGNED_OUT") setState("invalid");
         });
         unsubscribe = () => subscription.unsubscribe();
 
-        return supabase.auth.getSession().then(({ error }) => {
-          if (active && error) setState("invalid");
-          if (active && !error && recoveryEventReceived) setState("ready");
-          else if (active && !error) setState("invalid");
-        });
-      })
-      .catch(() => {
-        if (active) setState("invalid");
-      });
+        // Supabase may exchange the URL recovery code asynchronously.
+        // A normal existing session must never authorize a password reset.
+        const url = new URL(window.location.href);
+        const hasRecoveryLink = url.searchParams.has("code") ||
+          url.searchParams.get("type") === "recovery" ||
+          url.hash.includes("type=recovery");
+        if (!hasRecoveryLink) {
+          if (active) setState("invalid");
+          return;
+        }
 
+        const { error } = await supabase.auth.getSession();
+        if (!active) return;
+        if (error) {
+          setState("invalid");
+          return;
+        }
+        // For PKCE code redirects, exchangeCodeForSession is performed by
+        // supabase-js detectSessionInUrl; wait for PASSWORD_RECOVERY event.
+        // If a code is present and no event arrived, explicitly exchange it.
+        const code = url.searchParams.get("code");
+        if (code && !recoveryEventReceived) {
+          const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+          if (!active) return;
+          if (exchangeError) {
+            // Automatic exchange may have already consumed the code.
+            const { data: sessionData } = await supabase.auth.getSession();
+            if (!sessionData.session) setState("invalid");
+            else setState("ready");
+          } else {
+            setState("ready");
+          }
+        } else if (!recoveryEventReceived) {
+          // Allow initialization event to settle; do not grant access merely
+          // because a pre-existing session exists.
+          setState("invalid");
+        }
+      } catch {
+        if (active) setState("invalid");
+      }
+    }
+    void checkRecoveryLink();
     return () => {
       active = false;
       unsubscribe();

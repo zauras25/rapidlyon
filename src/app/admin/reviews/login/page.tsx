@@ -9,6 +9,9 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
+// Admin authentication and redirects intentionally wait for the request.
+export const instant = false;
+
 export default async function ReviewsAdminLoginPage() {
   const configured = discoveryAdminConfigured();
   const supabaseConfigured = Boolean(getSupabaseServerConfig());

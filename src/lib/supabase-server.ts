@@ -25,7 +25,7 @@ function isServiceRoleKey(key: string): boolean {
 }
 
 export function getSupabaseServerConfig(): SupabaseServerConfig | null {
-  const url = process.env.SUPABASE_URL?.trim();
+  const url = (process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL)?.trim();
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
 
   if (!url || !serviceRoleKey || !isServiceRoleKey(serviceRoleKey)) {

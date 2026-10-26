@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import type { Metadata } from "next";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { featuredProjects, insights, services } from "@/data/site";
@@ -51,7 +51,7 @@ const process = [
 
 export default function HomePage() {
   return (
-    <div className="bg-paper">
+    <div className="rp-page rp-home bg-paper">
       <section className="hero-v9 bg-ink text-paper">
         <div className="ds-shell hero-v9-shell">
           <div className="hero-v9-topline">

@@ -11,7 +11,7 @@ export const metadata = createPageMetadata(
 
 export default function PricingPage() {
   return (
-    <div className="bg-paper">
+    <div className="rp-page rp-pricing bg-paper">
       <PageHero
         eyebrow="Clear starting estimates"
         title="Get a feel for the scope before we talk."

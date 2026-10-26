@@ -14,7 +14,7 @@ export const metadata = createPageMetadata(
 
 export default function WorkPage() {
   return (
-    <div className="bg-paper">
+    <div className="rp-page rp-work bg-paper">
       <PageHero
         tone="dark"
         eyebrow="Selected work · project context"

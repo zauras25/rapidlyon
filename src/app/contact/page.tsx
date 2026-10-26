@@ -10,7 +10,7 @@ export const metadata = createPageMetadata(
 
 export default function ContactPage() {
   return (
-    <div className="bg-paper">
+    <div className="rp-page rp-contact bg-paper">
       <Suspense
         fallback={
           <div role="status" className="rounded-card border border-divider bg-surface p-8 text-sm text-body-muted">

@@ -1,3 +1,4 @@
+import { readSupabaseJson } from "@/lib/supabase-response";
 import { NextResponse } from "next/server";
 import { siteConfig } from "@/data/site";
 import { publishedReviewSchema, reviewSchema } from "@/lib/review-validation";
@@ -31,15 +32,7 @@ export async function GET() {
       },
     );
 
-    if (!response.ok) {
-      console.error(`Supabase published-review query failed with status ${response.status}.`);
-      return NextResponse.json(
-        { success: false, message: "Published reviews could not be loaded right now." },
-        { status: 502 },
-      );
-    }
-
-    const rows: unknown = await response.json();
+    const rows = await readSupabaseJson(response, "project_reviews");
     const parsedRows = publishedReviewSchema.array().safeParse(rows);
 
     if (!parsedRows.success) {

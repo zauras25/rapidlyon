@@ -1,3 +1,4 @@
+import { StudioAdminFrame } from "@/components/ui/studio-admin-frame";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { ProjectsAdmin } from "@/components/admin/projects-admin";
@@ -9,9 +10,12 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
+// Admin authentication and redirects intentionally wait for the request.
+export const instant = false;
+
 export default async function ProjectsPage() {
   if (!discoveryAdminConfigured() || !getSupabaseServerConfig() || !(await isDiscoveryAdmin())) {
     redirect("/admin/discovery/login?next=%2Fadmin%2Fprojects");
   }
-  return <ProjectsAdmin />;
+  return <StudioAdminFrame><ProjectsAdmin /></StudioAdminFrame>;
 }

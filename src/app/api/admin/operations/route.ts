@@ -1,3 +1,4 @@
+import { readSupabaseJson } from "@/lib/supabase-response";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { isDiscoveryAdmin } from "@/lib/discovery-auth";
@@ -89,12 +90,13 @@ async function readRows<T>(
     cache: "no-store",
     signal: AbortSignal.timeout(8000),
   });
-  if (!response.ok) {
-    throw new Error(`Admin operations query failed with status ${response.status}.`);
-  }
-  const payload: unknown = await response.json();
+  const resource = new URL(url).pathname.split("/").pop() ?? "operations";
+  const payload = await readSupabaseJson(response, resource);
   const parsed = z.array(schema).safeParse(payload);
-  if (!parsed.success) throw new Error("Admin operations query returned an invalid response.");
+  if (!parsed.success) {
+    const fields = parsed.error.issues.map((issue) => issue.path.join(".")).slice(0, 5).join(", ");
+    throw new Error(`Supabase ${resource}: response validation failed at ${fields}.`);
+  }
   return parsed.data;
 }
 
@@ -473,7 +475,7 @@ export async function GET(request: Request) {
   } catch (error) {
     console.error("Admin operations data could not be loaded.", error instanceof Error ? error.message : "unknown");
     return NextResponse.json(
-      { success: false, message: "Operations data could not be loaded. Check that the client delivery migrations have been applied." },
+      { success: false, message: "Operations data could not be loaded. Check server logs for the failing database request." },
       { status: 502, headers: { "Cache-Control": "no-store" } },
     );
   }

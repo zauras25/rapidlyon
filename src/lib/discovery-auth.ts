@@ -1,6 +1,7 @@
 import "server-only";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
+import { connection } from "next/server";
 
 export const discoverySessionCookie = "rapidlyon_discovery_admin";
 const sessionDurationSeconds = 60 * 60 * 8;
@@ -62,6 +63,7 @@ export function verifyAdminSession(token: string | undefined) {
 }
 
 export async function isDiscoveryAdmin() {
+  await connection();
   const token = (await cookies()).get(discoverySessionCookie)?.value;
   return verifyAdminSession(token);
 }

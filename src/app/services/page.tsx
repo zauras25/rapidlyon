@@ -12,7 +12,7 @@ export const metadata = createPageMetadata(
 
 export default function ServicesPage() {
   return (
-    <div className="bg-paper">
+    <div className="rp-page rp-services bg-paper">
       <PageHero
         tone="dark"
         eyebrow="Three connected capabilities"

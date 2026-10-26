@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { LayoutDashboard, Inbox, FolderKanban, CreditCard, PanelsTopLeft, Star, Bell, Search, ArrowUpRight, ChevronRight, Menu, X, RefreshCw, Clock3, CheckCircle2, AlertCircle, Send, FileCheck2, GitPullRequest, Activity,  } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -265,12 +266,8 @@ export function AdminOperationsDashboard() {
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => setSearch(searchInput.trim()), 250);
-    return () => window.clearTimeout(timer);
-  }, [searchInput]);
-
+  const [mobileMenu, setMobileMenu] = useState(false);
+  useEffect(() => { const timer = window.setTimeout(() => setSearch(searchInput.trim()), 250); return () => window.clearTimeout(timer); }, [searchInput]);
   const load = useCallback(async () => {
     setLoading(true);
     try {
@@ -279,259 +276,69 @@ export function AdminOperationsDashboard() {
       if (status !== "all") params.set("status", status);
       const response = await fetch(`/api/admin/operations?${params}`, { cache: "no-store" });
       const payload: unknown = await response.json();
-      if (response.status === 401) {
-        router.replace("/admin/discovery/login");
-        return;
-      }
+      if (response.status === 401) { router.replace("/admin/discovery/login"); return; }
       const parsed = dashboardSchema.safeParse(payload);
-      if (!response.ok || !parsed.success) {
-        const message = typeof payload === "object" && payload !== null && "message" in payload && typeof payload.message === "string"
-          ? payload.message
-          : "Operations data could not be loaded.";
-        throw new Error(message);
-      }
-      setData(parsed.data);
-      setError("");
-    } catch (loadError) {
-      setError(loadError instanceof Error ? loadError.message : "Operations data could not be loaded.");
-    } finally {
-      setLoading(false);
-    }
+      if (!response.ok || !parsed.success) throw new Error(typeof payload === "object" && payload !== null && "message" in payload && typeof payload.message === "string" ? payload.message : "Operations data could not be loaded.");
+      setData(parsed.data); setError("");
+    } catch (e) { setError(e instanceof Error ? e.message : "Operations data could not be loaded."); }
+    finally { setLoading(false); }
   }, [router, search, status]);
-
-  useEffect(() => {
-    // Refresh the server-filtered operations view when its filters change.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    void load();
-  }, [load]);
-
+  useEffect(() => { void load(); }, [load]);
   const counts = data?.counts;
-  return (
-    <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-      <PageHeading
-        eyebrow="Admin operations"
-        title="What needs your attention today?"
-        description="Client delivery, discovery, and follow-up work in one place."
-        active="operations"
-      />
-
-      {error ? <p role="alert" className="mt-6 rounded-xl border border-danger-line bg-danger-soft p-4 text-sm text-danger-deep">{error}</p> : null}
-      {loading && !data ? <p role="status" className="mt-8 text-sm text-body-muted">Loading operations…</p> : null}
-
-      {counts ? (
-        <>
-          <section aria-labelledby="attention-summary" className="mt-8">
-            <h2 id="attention-summary" className="text-xl font-semibold text-ink">Needs attention</h2>
-            <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              <SummaryCard label={`New discovery · ${counts.unqualified} unqualified`} value={counts.newDiscovery} href="/admin/discovery" />
-              <SummaryCard label="Invitations awaiting response" value={counts.pendingInvitations} />
-              <SummaryCard label="Deliverables ready for client review" value={counts.pendingDeliverables} href="/admin/clients" />
-              <SummaryCard label="Client change requests" value={counts.changeRequests} href="/admin/clients" />
-              <SummaryCard label="Milestones overdue or due in 7 days" value={counts.dueMilestones} />
-              <SummaryCard label="Reviews awaiting moderation" value={counts.pendingReviews} href="/admin/reviews" />
-              <SummaryCard label="Scope changes awaiting decision" value={counts.pendingScopeChanges} />
-            </div>
-          </section>
-
-          <section className="mt-10" aria-labelledby="attention-queue">
-            <div className="flex flex-wrap items-end justify-between gap-3">
-              <div>
-                <h2 id="attention-queue" className="text-xl font-semibold text-ink">Attention queue</h2>
-                <p className="mt-1 text-sm text-body-muted">Specific follow-ups supported by current records.</p>
+  const nav = [
+    {label:"Overview",href:"/admin/operations",icon:LayoutDashboard,active:true},
+    {label:"Discovery",href:"/admin/discovery",icon:Inbox},
+    {label:"Client projects",href:"/admin/clients",icon:FolderKanban},
+    {label:"Billing",href:"/admin/billing",icon:CreditCard},
+    {label:"Portfolio CMS",href:"/admin/projects",icon:PanelsTopLeft},
+    {label:"Reviews",href:"/admin/reviews",icon:Star},
+  ];
+  const stats = counts ? [
+    {label:"Active projects",value:counts.activeProjects,icon:FolderKanban,href:"/admin/clients",tone:"green"},
+    {label:"New discovery",value:counts.newDiscovery,icon:Inbox,href:"/admin/discovery",tone:"amber"},
+    {label:"Pending reviews",value:counts.pendingReviews+counts.pendingDeliverables,icon:FileCheck2,href:"/admin/reviews",tone:"purple"},
+    {label:"Due milestones",value:counts.dueMilestones,icon:Clock3,href:"#milestones",tone:"red"},
+  ] : [];
+  return <div className="r-os">
+    {mobileMenu && <button className="r-os-overlay" aria-label="Close menu" onClick={() => setMobileMenu(false)}/>}
+    <aside className={`r-os-sidebar ${mobileMenu ? "is-open" : ""}`}>
+      <Link href="/admin/operations" className="r-os-brand"><span className="r-os-brand-icon"><Image src="/brand/rapidlyon-mark.svg" alt="" width={30} height={30}/></span><span><strong>Rapidlyon</strong><small>STUDIO OS</small></span></Link>
+      <div className="r-os-workspace"><span className="r-os-workspace-dot"/><span>Studio workspace<small>Admin dashboard</small></span><ChevronRight size={15}/></div>
+      <div className="r-os-nav-label">WORKSPACE</div>
+      <nav aria-label="Studio navigation" className="r-os-nav">{nav.map(item=><Link key={item.href} href={item.href} onClick={()=>setMobileMenu(false)} className={item.active?"active":""} aria-current={item.active?"page":undefined}><item.icon size={18}/><span>{item.label}</span>{item.active&&<span className="r-os-active-dot"/>}</Link>)}</nav>
+      <div className="r-os-sidebar-bottom"><div className="r-os-sidebar-note"><span className="r-os-note-icon"><Activity size={18}/></span><strong>Studio operations</strong><p>Manage leads, clients and delivery from one place.</p></div><Link href="/" className="r-os-back"><ArrowUpRight size={16}/> View public website</Link></div>
+    </aside>
+    <div className="r-os-main">
+      <header className="r-os-topbar"><div className="r-os-top-left"><button className="r-os-menu" aria-label="Open navigation" onClick={()=>setMobileMenu(true)}><Menu size={21}/></button><span className="r-os-breadcrumb">Workspace <ChevronRight size={14}/> <strong>Overview</strong></span></div><div className="r-os-top-right"><span className="r-os-live"><span/> Operations online</span><button className="r-os-icon-button" onClick={()=>void load()} aria-label="Refresh dashboard" title="Refresh dashboard"><RefreshCw size={17} className={loading?"r-os-spin":""}/></button><Link href="/admin/discovery" className="r-os-icon-button" aria-label="Discovery inbox"><Bell size={18}/>{Boolean(counts?.newDiscovery)&&<i/>}</Link><span className="r-os-avatar">R</span></div></header>
+      <main className="r-os-content">
+        <div className="r-os-heading"><div><div className="r-os-eyebrow"><span/> STUDIO OVERVIEW <span className="r-os-eyebrow-line"/></div><h1>Good morning <span className="r-os-wave">✳</span></h1><p>Here’s what’s happening across your studio today.</p></div><Link className="r-os-primary" href="/admin/discovery">Open discovery <ArrowUpRight size={17}/></Link></div>
+        {error&&<div className="r-os-error" role="alert"><AlertCircle size={18}/><span>{error}</span><button onClick={()=>void load()}>Retry</button></div>}
+        {loading&&!data&&<div className="r-os-loading" role="status"><RefreshCw size={20} className="r-os-spin"/> Loading studio operations…</div>}
+        {counts&&data&&<>
+          <div className="r-os-section-title"><div><h2>At a glance</h2><p>Your studio performance and workload</p></div><span className="r-os-today">Live overview</span></div>
+          <div className="r-os-stats">{stats.map(s=><Link href={s.href} key={s.label} className="r-os-stat"><span className={`r-os-stat-icon ${s.tone}`}><s.icon size={20}/></span><ArrowUpRight className="r-os-stat-arrow" size={17}/><strong>{s.value}</strong><span className="r-os-stat-label">{s.label}</span><span className="r-os-stat-foot">View details <ChevronRight size={13}/></span></Link>)}</div>
+          <div className="r-os-columns">
+            <section className="r-os-panel r-os-priority"><div className="r-os-panel-head"><div><span className="r-os-kicker">YOUR WORKSPACE</span><h2>Priority inbox <span className="r-os-count">{counts.newDiscovery+counts.pendingInvitations+counts.pendingDeliverables+counts.changeRequests+counts.dueMilestones+counts.pendingScopeChanges}</span></h2><p>Items that may need your attention</p></div><Link href="/admin/discovery" className="r-os-text-link">View leads <ArrowUpRight size={15}/></Link></div>
+              <div className="r-os-task-list">
+                {data.attention.discovery.map(lead=><Link className="r-os-task" key={lead.id} href={`/admin/discovery?q=${encodeURIComponent(lead.email)}`}><span className="r-os-task-icon amber"><Inbox size={18}/></span><span className="r-os-task-body"><strong>{lead.full_name}</strong><small>New discovery · {lead.company || "Individual client"}</small><em>{lead.services.join(", ") || "Service not specified"} · {dateLabel(lead.created_at)}</em></span><span className="r-os-tag amber">New lead</span><ChevronRight size={16} className="r-os-chevron"/></Link>)}
+                {data.attention.invitations.map(item=><Link className="r-os-task" key={item.id} href={item.project?`/admin/operations/projects/${item.project.id}`:"/admin/clients"}><span className="r-os-task-icon purple"><Send size={18}/></span><span className="r-os-task-body"><strong>{item.project?.name||item.email}</strong><small>Invitation awaiting response</small><em>Expires {dateLabel(item.expires_at)}</em></span><span className="r-os-tag">Pending</span><ChevronRight size={16} className="r-os-chevron"/></Link>)}
+                {data.attention.deliverables.map(item=><Link className="r-os-task" key={item.id} href={item.project?`/admin/operations/projects/${item.project.id}`:"/admin/clients"}><span className="r-os-task-icon green"><FileCheck2 size={18}/></span><span className="r-os-task-body"><strong>{item.title}</strong><small>{item.project?.name||"Deliverable"}</small><em>{item.status.replaceAll("_"," ")}</em></span><span className="r-os-tag">Review</span><ChevronRight size={16} className="r-os-chevron"/></Link>)}
+                {data.attention.scopeChanges.map(item=><Link className="r-os-task" key={item.id} href={item.project?`/admin/operations/projects/${item.project.id}`:"/admin/clients"}><span className="r-os-task-icon purple"><GitPullRequest size={18}/></span><span className="r-os-task-body"><strong>{item.title}</strong><small>Scope change · {item.requester}</small><em>{ageLabel(item.created_at)}</em></span><span className="r-os-tag">Decision</span><ChevronRight size={16} className="r-os-chevron"/></Link>)}
+                {data.attention.milestones.map(item=><Link className="r-os-task" key={item.id} href={item.project?`/admin/operations/projects/${item.project.id}`:"/admin/clients"}><span className="r-os-task-icon red"><Clock3 size={18}/></span><span className="r-os-task-body"><strong>{item.title}</strong><small>{item.project?.name||"Milestone"}</small><em>Due {dateLabel(item.due_date)}</em></span><span className={`r-os-tag ${item.overdue?"red":"amber"}`}>{item.overdue?"Overdue":"Due soon"}</span><ChevronRight size={16} className="r-os-chevron"/></Link>)}
+                {!data.attention.discovery.length&&!data.attention.invitations.length&&!data.attention.deliverables.length&&!data.attention.scopeChanges.length&&!data.attention.milestones.length&&<div className="r-os-empty"><CheckCircle2 size={28}/><strong>All caught up!</strong><span>No urgent items need attention right now.</span></div>}
               </div>
-              <Link href="/admin/discovery" className="text-sm font-medium underline underline-offset-4">Open discovery</Link>
-            </div>
-            <div className="mt-4 grid gap-4 lg:grid-cols-2">
-              <section className="rounded-xl border border-divider bg-surface p-5">
-                <h3 className="font-semibold text-ink">Discovery and qualification</h3>
-                {data.attention.discovery.length ? (
-                  <ul className="mt-3 divide-y divide-divider">
-                    {data.attention.discovery.map((lead) => (
-                      <li key={lead.id} className="py-3 first:pt-0 last:pb-0">
-                        <Link href={`/admin/discovery?q=${encodeURIComponent(lead.email)}`} className="font-medium text-ink underline underline-offset-4">{lead.full_name}</Link>
-                        <p className="mt-1 text-sm text-body-muted">{lead.company} · {lead.services.join(", ") || "Service not specified"}</p>
-                        <p className="mt-1 text-xs text-body-muted">{lead.status} · {lead.qualification_status} · {dateLabel(lead.created_at)}</p>
-                      </li>
-                    ))}
-                  </ul>
-                ) : <p className="mt-3 text-sm text-body-muted">No discovery leads need attention.</p>}
-              </section>
-
-              <section className="rounded-xl border border-divider bg-surface p-5">
-                <h3 className="font-semibold text-ink">Invitations awaiting response</h3>
-                {data.attention.invitations.length ? (
-                  <ul className="mt-3 divide-y divide-divider">
-                    {data.attention.invitations.map((invitation) => (
-                      <li key={invitation.id} className="py-3 first:pt-0 last:pb-0">
-                        {invitation.project ? <ProjectLink project={invitation.project}>{invitation.project.name}</ProjectLink> : null}
-                        <p className="mt-1 text-sm text-body-muted">{invitation.client?.name} · {invitation.email}</p>
-                        <p className="mt-1 text-xs text-body-muted">Sent {dateLabel(invitation.created_at)} · Expires {dateLabel(invitation.expires_at)}</p>
-                      </li>
-                    ))}
-                  </ul>
-                ) : <p className="mt-3 text-sm text-body-muted">No pending invitations.</p>}
-                <p className="mt-4 text-xs text-body-muted">Invitation records are shown read-only; no resend or revoke action is configured.</p>
-              </section>
-
-              <section className="rounded-xl border border-divider bg-surface p-5">
-                <h3 className="font-semibold text-ink">Deliverable reviews and change requests</h3>
-                {data.attention.deliverables.length ? (
-                  <ul className="mt-3 divide-y divide-divider">
-                    {data.attention.deliverables.map((item) => (
-                      <li key={item.id} className="py-3 first:pt-0 last:pb-0">
-                        <p className="font-medium text-ink">{item.title} <span className="text-xs font-normal text-body-muted">· {item.status.replaceAll("_", " ")}</span></p>
-                        {item.project ? <p className="mt-1 text-sm text-body-muted">{item.project.name} · {item.project.client.name}</p> : null}
-                        {item.feedback ? <p className="mt-1 text-sm text-body-muted">Latest feedback: {item.feedback.message}</p> : null}
-                        {item.project ? <ProjectLink project={item.project}>Open project operations</ProjectLink> : null}
-                      </li>
-                    ))}
-                  </ul>
-                ) : <p className="mt-3 text-sm text-body-muted">No deliverable reviews or change requests.</p>}
-              </section>
-
-              <section className="rounded-xl border border-divider bg-surface p-5">
-                <h3 className="font-semibold text-ink">Milestones overdue or due soon</h3>
-                {data.attention.milestones.length ? (
-                  <ul className="mt-3 divide-y divide-divider">
-                    {data.attention.milestones.map((milestone) => (
-                      <li key={milestone.id} className="py-3 first:pt-0 last:pb-0">
-                        <p className="font-medium text-ink">{milestone.title} <span className="text-xs font-normal text-body-muted">· {milestone.overdue ? "Overdue" : "Due soon"} · {dateLabel(milestone.due_date)}</span></p>
-                        {milestone.project ? <p className="mt-1 text-sm text-body-muted">{milestone.project.name} · {milestone.project.client.name}</p> : null}
-                        {milestone.project ? <ProjectLink project={milestone.project}>Open project operations</ProjectLink> : null}
-                      </li>
-                    ))}
-                  </ul>
-                ) : <p className="mt-3 text-sm text-body-muted">No dated milestones are overdue or due within 7 days.</p>}
-              </section>
-              <section className="rounded-xl border border-divider bg-surface p-5">
-                <h3 className="font-semibold text-ink">Scope changes awaiting a decision</h3>
-                {data.attention.scopeChanges.length ? (
-                  <ul className="mt-3 divide-y divide-divider">
-                    {data.attention.scopeChanges.map((change) => (
-                      <li key={change.id} className="py-3 first:pt-0 last:pb-0">
-                        {change.project ? <ProjectLink project={change.project}>{change.project.name}</ProjectLink> : null}
-                        <p className="mt-1 text-sm font-medium text-ink">{change.title}</p>
-                        <p className="mt-1 text-xs text-body-muted">{change.requester} · Requested {dateLabel(change.created_at)} · {ageLabel(change.created_at)}</p>
-                      </li>
-                    ))}
-                  </ul>
-                ) : <p className="mt-3 text-sm text-body-muted">No scope changes need a decision.</p>}
-              </section>
-            </div>
-          </section>
-
-          <section className="mt-10" aria-labelledby="project-pipeline">
-            <div className="flex flex-wrap items-end justify-between gap-4">
-              <div>
-                <h2 id="project-pipeline" className="text-xl font-semibold text-ink">Projects</h2>
-                <p className="mt-1 text-sm text-body-muted">{counts.activeProjects} active · {counts.completedProjects} completed</p>
-              </div>
-              <Link href="/admin/clients" className="text-sm font-medium underline underline-offset-4">Manage milestones and deliverables</Link>
-            </div>
-            <div className="mt-4 flex flex-col gap-3 sm:flex-row">
-              <label className="flex-1 text-sm font-medium text-ink">
-                Search project or client
-                <input
-                  type="search"
-                  value={searchInput}
-                  onChange={(event) => setSearchInput(event.target.value)}
-                  placeholder="Project, client name, or email"
-                  className="mt-1.5 w-full rounded-lg border border-divider-strong bg-surface px-3 py-2.5 text-sm outline-none focus:border-accent-deep focus:ring-2 focus:ring-accent-deep/20"
-                />
-              </label>
-              <label className="text-sm font-medium text-ink">
-                Status
-                <select value={status} onChange={(event) => setStatus(event.target.value)} className="mt-1.5 block min-w-40 rounded-lg border border-divider-strong bg-surface px-3 py-2.5 text-sm">
-                  {statusOptions.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
-                </select>
-              </label>
-            </div>
-            {loading ? <p role="status" className="mt-4 text-sm text-body-muted">Updating project results…</p> : null}
-            <div className="mt-4 overflow-x-auto rounded-xl border border-divider bg-surface">
-              <table className="w-full min-w-[850px] border-collapse text-left text-sm">
-                <thead className="bg-surface-soft text-xs uppercase tracking-wide text-body-muted">
-                  <tr>
-                    <th className="px-4 py-3 font-semibold">Project / client</th>
-                    <th className="px-4 py-3 font-semibold">Status</th>
-                    <th className="px-4 py-3 font-semibold">Current milestone</th>
-                    <th className="px-4 py-3 font-semibold">Progress</th>
-                    <th className="px-4 py-3 font-semibold">Next action</th>
-                    <th className="px-4 py-3 font-semibold">Updated</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-divider">
-                  {data.projects.map((project) => (
-                    <tr key={project.id} className="align-top">
-                      <td className="px-4 py-4">
-                        <ProjectLink project={project}>{project.name}</ProjectLink>
-                        <p className="mt-1 text-body-muted">{project.client.name} · {project.client.email}</p>
-                        <p className="mt-1 text-xs text-body-muted">{project.service_type}</p>
-                      </td>
-                      <td className="px-4 py-4 capitalize">
-                        <p>{project.status}</p>
-                        {project.completed_at ? <p className="mt-1 text-xs normal-case text-body-muted">Completed {dateLabel(project.completed_at)}</p> : null}
-                        {project.review ? (
-                          <p className="mt-2 text-xs normal-case text-body-muted">
-                            Review: {project.review.status} · {dateLabel(project.review.created_at)}
-                          </p>
-                        ) : project.status === "completed" ? (
-                          <p className="mt-2 text-xs normal-case text-body-muted">No review submitted</p>
-                        ) : null}
-                      </td>
-                      <td className="px-4 py-4">{project.progress.currentMilestone?.title ?? "No milestone set"}</td>
-                      <td className="px-4 py-4">{project.progress.completed}/{project.progress.total} · {project.progress.percentage}%</td>
-                      <td className="max-w-64 px-4 py-4">{project.nextAction}</td>
-                      <td className="whitespace-nowrap px-4 py-4 text-body-muted">{timestampLabel(project.updated_at)}</td>
-                    </tr>
-                  ))}
-                  {!data.projects.length ? <tr><td colSpan={6} className="px-4 py-8 text-center text-body-muted">No projects match this search and status.</td></tr> : null}
-                </tbody>
-              </table>
-            </div>
-          </section>
-
-          <section className="mt-10 grid gap-5 lg:grid-cols-2">
-            <div className="rounded-xl border border-divider bg-surface p-5">
-              <div className="flex items-center justify-between gap-3">
-                <h2 className="text-lg font-semibold text-ink">Invitation pipeline</h2>
-                <span className="text-xs text-body-muted">Latest records</span>
-              </div>
-                <p className="mt-2 text-xs text-body-muted">
-                  Pending {data.invitationCounts.pending} · Accepted {data.invitationCounts.accepted} · Expired {data.invitationCounts.expired} · Revoked {data.invitationCounts.revoked}
-                </p>
-              {data.invitationPipeline.length ? (
-                <ul className="mt-3 divide-y divide-divider">
-                  {data.invitationPipeline.map((invitation) => (
-                    <li key={invitation.id} className="flex flex-wrap justify-between gap-2 py-3 first:pt-0 last:pb-0">
-                      <div>
-                        {invitation.project ? <ProjectLink project={invitation.project}>{invitation.project.name}</ProjectLink> : null}
-                        <p className="text-sm text-body-muted">{invitation.client?.name} · {invitation.email}</p>
-                      </div>
-                      <span className="text-sm capitalize text-body-muted">{invitation.status} · {dateLabel(invitation.created_at)}</span>
-                    </li>
-                  ))}
-                </ul>
-              ) : <p className="mt-3 text-sm text-body-muted">No invitation records are available.</p>}
-            </div>
-            <div className="rounded-xl border border-divider bg-surface p-5">
-              <h2 className="text-lg font-semibold text-ink">Recent project activity</h2>
-              {data.activity.length ? (
-                <ul className="mt-3 divide-y divide-divider">
-                  {data.activity.map((event) => (
-                    <li key={event.id} className="py-3 first:pt-0 last:pb-0">
-                      <p className="font-medium text-ink">{event.event_type.replaceAll("_", " ")}</p>
-                      {event.project ? <p className="mt-1 text-sm text-body-muted">{event.project.name} · {event.project.client.name}</p> : null}
-                      <p className="mt-1 text-xs text-body-muted">{timestampLabel(event.created_at)}</p>
-                    </li>
-                  ))}
-                </ul>
-              ) : <p className="mt-3 text-sm text-body-muted">No project activity has been recorded.</p>}
-            </div>
-          </section>
-        </>
-      ) : null}
-    </main>
-  );
+              <div className="r-os-panel-footer"><span><span className="r-os-dot"/> Synced with studio records</span><button onClick={()=>void load()} disabled={loading}><RefreshCw size={14}/> Refresh</button></div>
+            </section>
+            <div className="r-os-sidepanels"><section className="r-os-panel"><div className="r-os-panel-head"><div><span className="r-os-kicker">PIPELINE</span><h2>Client invitations</h2><p>Invitation status overview</p></div><span className="r-os-mini-icon"><Send size={17}/></span></div><div className="r-os-pipeline"><div><strong>{data.invitationCounts.pending}</strong><span>Pending</span></div><div><strong>{data.invitationCounts.accepted}</strong><span>Accepted</span></div><div><strong>{data.invitationCounts.expired}</strong><span>Expired</span></div></div><div className="r-os-pipeline-bar"><span style={{width:`${data.invitationCounts.pending+data.invitationCounts.accepted+data.invitationCounts.expired+data.invitationCounts.revoked?100*data.invitationCounts.accepted/(data.invitationCounts.pending+data.invitationCounts.accepted+data.invitationCounts.expired+data.invitationCounts.revoked):0}%`}}/></div><p className="r-os-muted-small">{data.invitationCounts.revoked} revoked · {data.invitationPipeline.length} recent records</p></section>
+            <section className="r-os-panel"><div className="r-os-panel-head"><div><span className="r-os-kicker">WORKLOAD</span><h2>Delivery health</h2><p>Outstanding operational items</p></div><span className="r-os-mini-icon"><Activity size={17}/></span></div><div className="r-os-health">{[{label:"Client change requests",n:counts.changeRequests},{label:"Scope decisions",n:counts.pendingScopeChanges},{label:"Reviews to moderate",n:counts.pendingReviews},{label:"Completed projects",n:counts.completedProjects}].map(x=><div key={x.label}><span>{x.label}</span><strong>{x.n}</strong></div>)}</div></section></div>
+          </div>
+          <section className="r-os-panel r-os-projects" id="projects"><div className="r-os-panel-head"><div><span className="r-os-kicker">DELIVERY</span><h2>Client projects</h2><p>{counts.activeProjects} active · {counts.completedProjects} completed</p></div><Link href="/admin/clients" className="r-os-text-link">Manage projects <ArrowUpRight size={15}/></Link></div><div className="r-os-filters"><div className="r-os-search"><Search size={17}/><input aria-label="Search projects or clients" placeholder="Search projects, clients or email…" type="search" value={searchInput} onChange={e=>setSearchInput(e.target.value)}/></div><select aria-label="Filter by project status" value={status} onChange={e=>setStatus(e.target.value)}>{statusOptions.map(([v,l])=><option key={v} value={v}>{l}</option>)}</select></div>{loading&&<p className="r-os-muted-small r-os-updating">Updating results…</p>}<div className="r-os-table-wrap"><table className="r-os-table"><thead><tr><th>PROJECT / CLIENT</th><th>STATUS</th><th>CURRENT MILESTONE</th><th>PROGRESS</th><th>NEXT ACTION</th><th>UPDATED</th></tr></thead><tbody>{data.projects.map(project=><tr key={project.id}><td><ProjectLink project={project}>{project.name}</ProjectLink><small>{project.client.name} · {project.service_type}</small></td><td><span className={`r-os-status ${project.status}`}>{project.status}</span></td><td>{project.progress.currentMilestone?.title||"Not scheduled"}</td><td><div className="r-os-progress"><span style={{width:`${Math.max(0,Math.min(100,project.progress.percentage))}%`}}/></div><small>{project.progress.percentage}% complete</small></td><td>{project.nextAction}</td><td>{dateLabel(project.updated_at)}</td></tr>)}{!data.projects.length&&<tr><td colSpan={6}><div className="r-os-table-empty"><FolderKanban size={27}/><strong>No projects found</strong><span>{search||status!=="all"?"Try a different search or status filter.":"Projects will appear here when they are created."}</span></div></td></tr>}</tbody></table></div></section>
+          <section className="r-os-bottom-grid"><div className="r-os-panel"><div className="r-os-panel-head"><div><span className="r-os-kicker">RECENT UPDATES</span><h2>Project activity</h2></div><Activity size={18}/></div>{data.activity.length?<div className="r-os-events">{data.activity.map(e=><div key={e.id}><span className="r-os-event-dot"/><div><strong>{e.event_type.replaceAll("_"," ")}</strong><small>{e.project?.name||"Project"} · {timestampLabel(e.created_at)}</small></div></div>)}</div>:<div className="r-os-empty small"><Activity size={24}/><strong>Nothing new yet</strong><span>Project activity will show up here.</span></div>}</div><div className="r-os-panel" id="milestones"><div className="r-os-panel-head"><div><span className="r-os-kicker">COMING UP</span><h2>Milestones</h2></div><Clock3 size={18}/></div>{data.attention.milestones.length?<div className="r-os-events">{data.attention.milestones.map(m=><div key={m.id}><span className="r-os-event-dot"/><div><strong>{m.title}</strong><small>{m.project?.name||"Project"} · {dateLabel(m.due_date)} · {m.overdue?"Overdue":"Due soon"}</small></div></div>)}</div>:<div className="r-os-empty small"><CheckCircle2 size={24}/><strong>On schedule</strong><span>No overdue or upcoming milestones within 7 days.</span></div>}</div></section>
+          <footer className="r-os-footer"><span>© 2026 Rapidlyon Studio OS</span><span>Designed for focused operations <span className="r-os-footer-heart">✳</span></span></footer>
+        </>}
+      </main>
+    </div>
+  </div>;
 }
 
 export function AdminProjectOperations({ projectId }: { projectId: string }) {

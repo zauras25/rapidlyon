@@ -11,7 +11,7 @@ export const metadata = createPageMetadata(
 
 export default function FaqPage() {
   return (
-    <div className="bg-paper">
+    <div className="rp-page rp-faq bg-paper">
       <PageHero eyebrow="FAQ" title="Answers to the most common questions." />
       <div className="mx-auto max-w-4xl px-4 pb-20 sm:px-6 sm:pb-24 lg:px-8">
       <div className="mt-2 space-y-4">

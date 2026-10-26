@@ -1,3 +1,4 @@
+import { StudioAdminFrame } from "@/components/ui/studio-admin-frame";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { ReviewsAdmin } from "@/components/admin/reviews-admin";
@@ -9,10 +10,13 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
+// Admin authentication and redirects intentionally wait for the request.
+export const instant = false;
+
 export default async function ReviewsAdminPage() {
   if (!discoveryAdminConfigured() || !getSupabaseServerConfig() || !(await isDiscoveryAdmin())) {
     redirect("/admin/reviews/login");
   }
 
-  return <ReviewsAdmin />;
+  return <StudioAdminFrame><ReviewsAdmin /></StudioAdminFrame>;
 }

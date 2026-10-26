@@ -18,10 +18,28 @@ const actionSchema = z.object({
 });
 const resultSchema = z.record(z.string(), z.unknown());
 
-async function clientRows(table: string, clientId: string, select = "*") {
+// Only shared lifecycle states and client-facing fields may leave this endpoint.
+const clientRecordPolicies = {
+  project_proposals: {
+    states: "sent,viewed,accepted,declined,expired",
+    fields: "id,client_id,project_id,proposal_number,title,summary,scope,deliverables,exclusions,timeline,milestones,payment_schedule,amount,currency,status,expires_at,sent_at,viewed_at,accepted_at,declined_at,created_at,updated_at",
+  },
+  project_agreements: {
+    states: "sent,accepted,declined,superseded",
+    fields: "id,client_id,project_id,proposal_id,version,terms,status,sent_at,accepted_at,declined_at,created_at,updated_at",
+  },
+  invoices: {
+    states: "sent,viewed,pending,paid,overdue,cancelled,refunded",
+    fields: "id,client_id,project_id,proposal_id,agreement_id,invoice_number,status,issue_date,due_date,currency,subtotal,discount,tax,total,notes,payment_instructions,sent_at,viewed_at,paid_at,cancelled_at,created_at,updated_at",
+  },
+} as const;
+
+async function clientRows(table: keyof typeof clientRecordPolicies, clientId: string) {
+  const policy = clientRecordPolicies[table];
   return readCommercialRows(table, new URLSearchParams({
-    select,
+    select: policy.fields,
     client_id: `eq.${clientId}`,
+    status: `in.(${policy.states})`,
     order: "created_at.desc",
     limit: "500",
   }), rowSchema);
@@ -59,11 +77,10 @@ export async function GET(request: Request) {
     if (!client) {
       return NextResponse.json({ success: false, message: "This account is not connected to a client workspace." }, { status: 403 });
     }
-    const [proposals, agreements, invoices, payments] = await Promise.all([
+    const [proposals, agreements, invoices] = await Promise.all([
       clientRows("project_proposals", client.clientId),
       clientRows("project_agreements", client.clientId),
       clientRows("invoices", client.clientId),
-      clientRows("invoice_payments", client.clientId, "id,invoice_id,client_id,amount,currency,status,created_at,completed_at"),
     ]);
     const projectIds = [...new Set(
       [...proposals, ...agreements, ...invoices]
@@ -86,14 +103,23 @@ export async function GET(request: Request) {
           : "",
       }));
     const invoiceIds = invoices.map((invoice) => invoice.id).filter((id): id is string => typeof id === "string");
-    const lineItems = invoiceIds.length
-      ? await readCommercialRows("invoice_line_items", new URLSearchParams({
-          select: "*",
-          client_id: `eq.${client.clientId}`,
-          invoice_id: `in.(${invoiceIds.join(",")})`,
-          order: "position.asc",
-        }), rowSchema)
-      : [];
+    const [lineItems, payments] = invoiceIds.length
+      ? await Promise.all([
+          readCommercialRows("invoice_line_items", new URLSearchParams({
+            select: "id,invoice_id,client_id,position,description,quantity,unit_price,line_total",
+            client_id: `eq.${client.clientId}`,
+            invoice_id: `in.(${invoiceIds.join(",")})`,
+            order: "position.asc",
+          }), rowSchema),
+          readCommercialRows("invoice_payments", new URLSearchParams({
+            select: "id,invoice_id,client_id,amount,currency,status,created_at,completed_at",
+            client_id: `eq.${client.clientId}`,
+            invoice_id: `in.(${invoiceIds.join(",")})`,
+            order: "created_at.desc",
+            limit: "500",
+          }), rowSchema),
+        ])
+      : [[], []];
 
     await Promise.all([
       ...proposals

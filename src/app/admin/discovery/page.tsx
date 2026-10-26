@@ -1,3 +1,4 @@
+import { StudioAdminFrame } from "@/components/ui/studio-admin-frame";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { DiscoveryAdmin } from "@/components/admin/discovery-admin";
@@ -9,6 +10,9 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
+// Admin authentication and redirects intentionally wait for the request.
+export const instant = false;
+
 export default async function DiscoveryAdminPage({
   searchParams,
 }: {
@@ -19,5 +23,5 @@ export default async function DiscoveryAdminPage({
   }
 
   const { q } = await searchParams;
-  return <DiscoveryAdmin initialSearch={q?.slice(0, 100) ?? ""} />;
+  return <StudioAdminFrame><DiscoveryAdmin initialSearch={q?.slice(0, 100) ?? ""} /></StudioAdminFrame>;
 }

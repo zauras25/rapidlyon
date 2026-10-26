@@ -28,7 +28,7 @@ function getSafeNextPath(next?: string) {
 
 export default function ClientLoginPage({ searchParams }: ClientLoginPageProps) {
   return (
-    <Suspense fallback={<div className="mx-auto flex min-h-[60dvh] max-w-7xl items-center justify-center px-4 py-12 text-base text-body-muted" role="status">Loading account options…</div>}>
+    <Suspense fallback={<div className="rp-login-page mx-auto flex min-h-[60dvh] max-w-7xl items-center justify-center px-4 py-12 text-base text-body-muted" role="status">Loading account options…</div>}>
       <ClientLoginContent searchParams={searchParams} />
     </Suspense>
   );
@@ -39,7 +39,7 @@ async function ClientLoginContent({ searchParams }: ClientLoginPageProps) {
   const nextPath = getSafeNextPath(next);
 
   return (
-    <div className="mx-auto flex min-h-[60dvh] max-w-7xl items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
+    <div className="rp-login-page mx-auto flex min-h-[60dvh] max-w-7xl items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
       <ClientAuthForm nextPath={nextPath} />
     </div>
   );
