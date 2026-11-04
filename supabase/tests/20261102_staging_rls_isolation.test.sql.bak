@@ -1,0 +1,545 @@
+BEGIN;
+
+CREATE TEMP TABLE rls_test_state (
+  auth_a uuid NOT NULL DEFAULT gen_random_uuid(),
+  auth_b uuid NOT NULL DEFAULT gen_random_uuid(),
+  auth_admin uuid NOT NULL DEFAULT gen_random_uuid(),
+  email_a text NOT NULL DEFAULT format('client-a-%s@example.invalid', replace(gen_random_uuid()::text, '-', '')),
+  email_b text NOT NULL DEFAULT format('client-b-%s@example.invalid', replace(gen_random_uuid()::text, '-', '')),
+  email_admin text NOT NULL DEFAULT format('admin-%s@example.invalid', replace(gen_random_uuid()::text, '-', '')),
+  client_a uuid NOT NULL DEFAULT gen_random_uuid(),
+  client_b uuid NOT NULL DEFAULT gen_random_uuid(),
+  project_a uuid NOT NULL DEFAULT gen_random_uuid(),
+  project_b uuid NOT NULL DEFAULT gen_random_uuid(),
+  milestone_a uuid NOT NULL DEFAULT gen_random_uuid(),
+  milestone_b uuid NOT NULL DEFAULT gen_random_uuid(),
+  scope_a uuid NOT NULL DEFAULT gen_random_uuid(),
+  scope_b uuid NOT NULL DEFAULT gen_random_uuid(),
+  proposal_a uuid NOT NULL DEFAULT gen_random_uuid(),
+  proposal_b uuid NOT NULL DEFAULT gen_random_uuid(),
+  agreement_a uuid NOT NULL DEFAULT gen_random_uuid(),
+  agreement_b uuid NOT NULL DEFAULT gen_random_uuid(),
+  invoice_a uuid NOT NULL DEFAULT gen_random_uuid(),
+  invoice_b uuid NOT NULL DEFAULT gen_random_uuid(),
+  payment_a uuid NOT NULL DEFAULT gen_random_uuid(),
+  payment_b uuid NOT NULL DEFAULT gen_random_uuid()
+) ON COMMIT DROP;
+INSERT INTO rls_test_state DEFAULT VALUES;
+GRANT SELECT ON rls_test_state TO authenticated, anon, service_role;
+
+SELECT extensions.plan(22);
+
+WITH identities AS (
+  SELECT auth_a AS id, email_a AS email, '{"role":"client"}'::jsonb AS app_metadata
+  FROM rls_test_state
+  UNION ALL
+  SELECT auth_b, email_b, '{"role":"client"}'::jsonb FROM rls_test_state
+  UNION ALL
+  SELECT auth_admin, email_admin, '{"role":"admin","app_role":"admin"}'::jsonb FROM rls_test_state
+)
+INSERT INTO auth.users (
+  id, instance_id, aud, role, email, encrypted_password, email_confirmed_at,
+  created_at, updated_at, raw_app_meta_data, raw_user_meta_data,
+  confirmation_token, confirmation_sent_at, recovery_token, recovery_sent_at,
+  email_change_token_new, email_change, email_change_sent_at, invited_at,
+  is_anonymous, is_sso_user, deleted_at, last_sign_in_at
+)
+SELECT
+  id,
+  '00000000-0000-0000-0000-000000000000'::uuid,
+  'authenticated',
+  'authenticated',
+  email,
+  'not-a-login-credential',
+  now(),
+  now(),
+  now(),
+  app_metadata,
+  '{}'::jsonb,
+  '',
+  now(),
+  '',
+  now(),
+  '',
+  '',
+  now(),
+  now(),
+  false,
+  false,
+  null,
+  now()
+FROM identities;
+
+INSERT INTO public.clients (id, name, email, company, status, auth_user_id)
+SELECT client_a, 'Client A QA', email_a, 'QA Fixture A', 'active', auth_a FROM rls_test_state
+UNION ALL
+SELECT client_b, 'Client B QA', email_b, 'QA Fixture B', 'active', auth_b FROM rls_test_state;
+
+INSERT INTO public.client_projects (
+  id, client_id, name, service_type, status, agreed_price, currency,
+  package_snapshot, agreed_scope
+)
+SELECT project_a, client_a, 'Client A QA Project', 'Product Design', 'active', 2500.00, 'USD',
+       '{"name":"qa-a"}'::jsonb, '{"summary":"synthetic client A project"}'::jsonb
+FROM rls_test_state
+UNION ALL
+SELECT project_b, client_b, 'Client B QA Project', 'Next.js Development', 'active', 3500.00, 'USD',
+       '{"name":"qa-b"}'::jsonb, '{"summary":"synthetic client B project"}'::jsonb
+FROM rls_test_state;
+
+INSERT INTO public.project_milestones (id, project_id, title, description, position, status)
+SELECT milestone_a, project_a, 'A QA milestone', 'Client A fixture milestone', 0, 'upcoming'
+FROM rls_test_state
+UNION ALL
+SELECT milestone_b, project_b, 'B QA milestone', 'Client B fixture milestone', 0, 'upcoming'
+FROM rls_test_state;
+
+INSERT INTO public.project_scope_changes (
+  id, project_id, requested_by, title, description, status
+)
+SELECT scope_a, project_a, auth_a, 'A scope fixture', 'Synthetic client A scope isolation record.', 'requested'
+FROM rls_test_state
+UNION ALL
+SELECT scope_b, project_b, auth_b, 'B scope fixture', 'Synthetic client B scope isolation record.', 'requested'
+FROM rls_test_state;
+
+INSERT INTO public.project_proposals (
+  id, proposal_number, client_id, project_id, title, summary, scope,
+  deliverables, exclusions, timeline, milestones, payment_schedule,
+  amount, currency, notes, status, expires_at, sent_at
+)
+SELECT
+  proposal_a,
+  format('RLS-QA-%s', replace(gen_random_uuid()::text, '-', '')),
+  client_a, project_a, 'Client A QA proposal', 'Synthetic A proposal',
+  '{"summary":"A"}'::jsonb, '[]'::jsonb, '[]'::jsonb,
+  '{"start":"2026-11-02","end":"2026-12-31"}'::jsonb,
+  '[{"title":"A milestone"}]'::jsonb,
+  '[{"sequence":1,"stage":"advance","percentage":40,"amount":"1000.00","currency":"USD"},{"sequence":2,"stage":"agreed_milestone","percentage":30,"amount":"750.00","currency":"USD","milestone_position":1},{"sequence":3,"stage":"final","percentage":30,"amount":"750.00","currency":"USD"}]'::jsonb,
+  2500.00, 'USD', 'Synthetic RLS QA fixture', 'sent', now() + interval '30 days', now()
+FROM rls_test_state
+UNION ALL
+SELECT
+  proposal_b,
+  format('RLS-QA-%s', replace(gen_random_uuid()::text, '-', '')),
+  client_b, project_b, 'Client B QA proposal', 'Synthetic B proposal',
+  '{"summary":"B"}'::jsonb, '[]'::jsonb, '[]'::jsonb,
+  '{"start":"2026-11-02","end":"2026-12-31"}'::jsonb,
+  '[{"title":"B milestone"}]'::jsonb,
+  '[{"sequence":1,"stage":"advance","percentage":40,"amount":"1400.00","currency":"USD"},{"sequence":2,"stage":"agreed_milestone","percentage":30,"amount":"1050.00","currency":"USD","milestone_position":1},{"sequence":3,"stage":"final","percentage":30,"amount":"1050.00","currency":"USD"}]'::jsonb,
+  3500.00, 'USD', 'Synthetic RLS QA fixture', 'sent', now() + interval '30 days', now()
+FROM rls_test_state;
+
+INSERT INTO public.project_agreements (
+  id, client_id, project_id, proposal_id, version, terms, status, sent_at
+)
+SELECT agreement_a, client_a, project_a, proposal_a, 1, 'Synthetic A agreement terms.', 'sent', now()
+FROM rls_test_state
+UNION ALL
+SELECT agreement_b, client_b, project_b, proposal_b, 1, 'Synthetic B agreement terms.', 'sent', now()
+FROM rls_test_state;
+
+INSERT INTO public.invoices (
+  id, invoice_number, client_id, project_id, proposal_id, agreement_id,
+  issue_date, due_date, currency, subtotal, discount, tax, total,
+  notes, payment_instructions, status, sent_at
+)
+SELECT invoice_a, format('RLS-QA-%s', replace(gen_random_uuid()::text, '-', '')),
+       client_a, project_a, proposal_a, agreement_a, current_date, current_date + 14,
+       'USD', 1000.00, 0, 0, 1000.00, 'Synthetic A invoice', 'QA fixture',
+       'sent', now()
+FROM rls_test_state
+UNION ALL
+SELECT invoice_b, format('RLS-QA-%s', replace(gen_random_uuid()::text, '-', '')),
+       client_b, project_b, proposal_b, agreement_b, current_date, current_date + 14,
+       'USD', 1400.00, 0, 0, 1400.00, 'Synthetic B invoice', 'QA fixture',
+       'sent', now()
+FROM rls_test_state;
+
+INSERT INTO public.invoice_payments (
+  id, invoice_id, client_id, provider, idempotency_key, amount, currency,
+  status, payment_method, provider_metadata
+)
+SELECT payment_a, invoice_a, client_a, 'qa-fixture',
+       format('qa-%s', replace(gen_random_uuid()::text, '-', '')),
+       1000.00, 'USD', 'awaiting_payment', 'bank_transfer', '{}'::jsonb
+FROM rls_test_state
+UNION ALL
+SELECT payment_b, invoice_b, client_b, 'qa-fixture',
+       format('qa-%s', replace(gen_random_uuid()::text, '-', '')),
+       1400.00, 'USD', 'awaiting_payment', 'bank_transfer', '{}'::jsonb
+FROM rls_test_state;
+
+INSERT INTO public.commercial_financial_events (
+  event_type, client_id, agreement_id, invoice_id, installment_sequence,
+  amount, currency, details
+)
+SELECT 'agreement_accepted', client_a, agreement_a, invoice_a, 1,
+       1000.00, 'USD', '{"source":"transactional RLS QA fixture"}'::jsonb
+FROM rls_test_state
+UNION ALL
+SELECT 'agreement_accepted', client_b, agreement_b, invoice_b, 1,
+       1400.00, 'USD', '{"source":"transactional RLS QA fixture"}'::jsonb
+FROM rls_test_state;
+
+SELECT extensions.ok(
+  (SELECT count(*) = 2
+      AND count(DISTINCT client_id) = 2
+      AND count(DISTINCT project_id) = 2
+   FROM public.client_projects
+   WHERE id IN (
+     (SELECT project_a FROM rls_test_state),
+     (SELECT project_b FROM rls_test_state)
+   ))
+  AND (SELECT count(*) = 2 FROM public.project_proposals
+       WHERE id IN ((SELECT proposal_a FROM rls_test_state), (SELECT proposal_b FROM rls_test_state)))
+  AND (SELECT count(*) = 2 FROM public.project_agreements
+       WHERE id IN ((SELECT agreement_a FROM rls_test_state), (SELECT agreement_b FROM rls_test_state)))
+  AND (SELECT count(*) = 2 FROM public.invoices
+       WHERE id IN ((SELECT invoice_a FROM rls_test_state), (SELECT invoice_b FROM rls_test_state)))
+  AND (SELECT count(*) = 2 FROM public.invoice_payments
+       WHERE id IN ((SELECT payment_a FROM rls_test_state), (SELECT payment_b FROM rls_test_state))),
+  'both synthetic clients have independent relational fixtures for every commercial record type'
+);
+
+SELECT set_config('request.jwt.claim.sub', (SELECT auth_a::text FROM rls_test_state), true);
+SELECT set_config(
+  'request.jwt.claims',
+  jsonb_build_object('sub', (SELECT auth_a FROM rls_test_state), 'role', 'authenticated')::text,
+  true
+);
+SET LOCAL ROLE authenticated;
+
+SELECT extensions.ok(
+  (SELECT count(*) = 1 FROM public.clients WHERE id = (SELECT client_a FROM rls_test_state))
+  AND (SELECT count(*) = 0 FROM public.clients WHERE id = (SELECT client_b FROM rls_test_state))
+  AND (SELECT count(*) = 1 FROM public.client_projects WHERE id = (SELECT project_a FROM rls_test_state))
+  AND (SELECT count(*) = 0 FROM public.client_projects WHERE id = (SELECT project_b FROM rls_test_state)),
+  'role-simulated Client A reads own client and project, but not Client B records'
+);
+
+SELECT extensions.ok(
+  (SELECT count(*) = 1 FROM public.project_milestones WHERE id = (SELECT milestone_a FROM rls_test_state))
+  AND (SELECT count(*) = 0 FROM public.project_milestones WHERE id = (SELECT milestone_b FROM rls_test_state))
+  AND (SELECT count(*) = 1 FROM public.project_scope_changes WHERE id = (SELECT scope_a FROM rls_test_state))
+  AND (SELECT count(*) = 0 FROM public.project_scope_changes WHERE id = (SELECT scope_b FROM rls_test_state)),
+  'role-simulated Client A reads own milestone and scope change, but not Client B records'
+);
+
+SELECT extensions.ok(
+  NOT has_table_privilege('authenticated', 'public.project_proposals', 'SELECT')
+  AND NOT has_table_privilege('authenticated', 'public.project_agreements', 'SELECT')
+  AND NOT has_table_privilege('authenticated', 'public.invoices', 'SELECT')
+  AND NOT has_table_privilege('authenticated', 'public.invoice_line_items', 'SELECT')
+  AND NOT has_table_privilege('authenticated', 'public.invoice_payments', 'SELECT')
+  AND NOT has_table_privilege('authenticated', 'public.commercial_financial_events', 'SELECT'),
+  'commercial and financial tables intentionally grant no direct authenticated reads'
+);
+
+DO $test$
+DECLARE
+  v_state text;
+BEGIN
+  BEGIN
+    PERFORM 1 FROM public.project_proposals WHERE id = (SELECT proposal_a FROM rls_test_state);
+    PERFORM extensions.ok(false, 'Client A cannot directly read its proposal table row');
+  EXCEPTION WHEN insufficient_privilege THEN
+    PERFORM extensions.ok(true, 'own proposal read is denied by the actual table privilege boundary');
+  WHEN OTHERS THEN
+    GET STACKED DIAGNOSTICS v_state = RETURNED_SQLSTATE;
+    PERFORM extensions.ok(false, 'proposal read failed for an unrelated SQLSTATE ' || v_state);
+  END;
+END
+$test$;
+
+DO $test$
+DECLARE
+  v_state text;
+BEGIN
+  BEGIN
+    PERFORM 1 FROM public.project_agreements WHERE id = (SELECT agreement_a FROM rls_test_state);
+    PERFORM extensions.ok(false, 'Client A cannot directly read its agreement table row');
+  EXCEPTION WHEN insufficient_privilege THEN
+    PERFORM extensions.ok(true, 'own agreement read is denied by the actual table privilege boundary');
+  WHEN OTHERS THEN
+    GET STACKED DIAGNOSTICS v_state = RETURNED_SQLSTATE;
+    PERFORM extensions.ok(false, 'agreement read failed for an unrelated SQLSTATE ' || v_state);
+  END;
+END
+$test$;
+
+DO $test$
+DECLARE
+  v_state text;
+BEGIN
+  BEGIN
+    PERFORM 1 FROM public.invoices WHERE id = (SELECT invoice_a FROM rls_test_state);
+    PERFORM extensions.ok(false, 'Client A cannot directly read its invoice table row');
+  EXCEPTION WHEN insufficient_privilege THEN
+    PERFORM extensions.ok(true, 'own invoice read is denied by the actual table privilege boundary');
+  WHEN OTHERS THEN
+    GET STACKED DIAGNOSTICS v_state = RETURNED_SQLSTATE;
+    PERFORM extensions.ok(false, 'invoice read failed for an unrelated SQLSTATE ' || v_state);
+  END;
+END
+$test$;
+
+DO $test$
+DECLARE
+  v_state text;
+BEGIN
+  BEGIN
+    PERFORM 1 FROM public.invoice_payments WHERE id = (SELECT payment_a FROM rls_test_state);
+    PERFORM extensions.ok(false, 'Client A cannot directly read its payment table row');
+  EXCEPTION WHEN insufficient_privilege THEN
+    PERFORM extensions.ok(true, 'own payment read is denied by the actual table privilege boundary');
+  WHEN OTHERS THEN
+    GET STACKED DIAGNOSTICS v_state = RETURNED_SQLSTATE;
+    PERFORM extensions.ok(false, 'payment read failed for an unrelated SQLSTATE ' || v_state);
+  END;
+END
+$test$;
+
+DO $test$
+DECLARE
+  v_state text;
+BEGIN
+  BEGIN
+    PERFORM 1 FROM public.commercial_financial_events
+    WHERE client_id = (SELECT client_a FROM rls_test_state);
+    PERFORM extensions.ok(false, 'Client A cannot read its own financial audit records');
+  EXCEPTION WHEN insufficient_privilege THEN
+    PERFORM extensions.ok(true, 'financial audit reads are denied by the actual table privilege boundary');
+  WHEN OTHERS THEN
+    GET STACKED DIAGNOSTICS v_state = RETURNED_SQLSTATE;
+    PERFORM extensions.ok(false, 'financial audit read failed for an unrelated SQLSTATE ' || v_state);
+  END;
+END
+$test$;
+
+DO $test$
+DECLARE
+  v_state text;
+BEGIN
+  BEGIN
+    UPDATE public.client_projects
+    SET name = name
+    WHERE id = (SELECT project_b FROM rls_test_state);
+    PERFORM extensions.ok(false, 'Client A cannot write Client B project records');
+  EXCEPTION WHEN insufficient_privilege THEN
+    PERFORM extensions.ok(true, 'cross-client project write is denied by the actual privilege boundary');
+  WHEN OTHERS THEN
+    GET STACKED DIAGNOSTICS v_state = RETURNED_SQLSTATE;
+    PERFORM extensions.ok(false, 'cross-client write failed for an unrelated SQLSTATE ' || v_state);
+  END;
+END
+$test$;
+
+DO $test$
+DECLARE
+  v_state text;
+BEGIN
+  BEGIN
+    UPDATE public.invoices
+    SET notes = notes
+    WHERE id = (SELECT invoice_b FROM rls_test_state);
+    PERFORM extensions.ok(false, 'Client A cannot write Client B invoice records');
+  EXCEPTION WHEN insufficient_privilege THEN
+    PERFORM extensions.ok(true, 'cross-client invoice write is denied by the actual privilege boundary');
+  WHEN OTHERS THEN
+    GET STACKED DIAGNOSTICS v_state = RETURNED_SQLSTATE;
+    PERFORM extensions.ok(false, 'cross-client invoice write failed for an unrelated SQLSTATE ' || v_state);
+  END;
+END
+$test$;
+
+RESET ROLE;
+SELECT set_config('request.jwt.claim.sub', (SELECT auth_b::text FROM rls_test_state), true);
+SELECT set_config(
+  'request.jwt.claims',
+  jsonb_build_object('sub', (SELECT auth_b FROM rls_test_state), 'role', 'authenticated')::text,
+  true
+);
+SET LOCAL ROLE authenticated;
+
+SELECT extensions.ok(
+  (SELECT count(*) = 1 FROM public.clients WHERE id = (SELECT client_b FROM rls_test_state))
+  AND (SELECT count(*) = 0 FROM public.clients WHERE id = (SELECT client_a FROM rls_test_state))
+  AND (SELECT count(*) = 1 FROM public.client_projects WHERE id = (SELECT project_b FROM rls_test_state))
+  AND (SELECT count(*) = 0 FROM public.client_projects WHERE id = (SELECT project_a FROM rls_test_state)),
+  'role-simulated Client B reads own client and project, but not Client A records'
+);
+
+SELECT extensions.ok(
+  (SELECT count(*) = 1 FROM public.project_milestones WHERE id = (SELECT milestone_b FROM rls_test_state))
+  AND (SELECT count(*) = 0 FROM public.project_milestones WHERE id = (SELECT milestone_a FROM rls_test_state))
+  AND (SELECT count(*) = 1 FROM public.project_scope_changes WHERE id = (SELECT scope_b FROM rls_test_state))
+  AND (SELECT count(*) = 0 FROM public.project_scope_changes WHERE id = (SELECT scope_a FROM rls_test_state)),
+  'role-simulated Client B reads own milestone and scope change, but not Client A records'
+);
+
+DO $test$
+DECLARE
+  v_state text;
+BEGIN
+  BEGIN
+    UPDATE public.client_projects
+    SET name = name
+    WHERE id = (SELECT project_a FROM rls_test_state);
+    PERFORM extensions.ok(false, 'Client B cannot write Client A project records');
+  EXCEPTION WHEN insufficient_privilege THEN
+    PERFORM extensions.ok(true, 'cross-client project write is denied by the actual privilege boundary');
+  WHEN OTHERS THEN
+    GET STACKED DIAGNOSTICS v_state = RETURNED_SQLSTATE;
+    PERFORM extensions.ok(false, 'cross-client write failed for an unrelated SQLSTATE ' || v_state);
+  END;
+END
+$test$;
+
+DO $test$
+DECLARE
+  v_state text;
+BEGIN
+  BEGIN
+    UPDATE public.invoice_payments
+    SET status = status
+    WHERE id = (SELECT payment_a FROM rls_test_state);
+    PERFORM extensions.ok(false, 'Client B cannot write Client A payment records');
+  EXCEPTION WHEN insufficient_privilege THEN
+    PERFORM extensions.ok(true, 'cross-client payment write is denied by the actual privilege boundary');
+  WHEN OTHERS THEN
+    GET STACKED DIAGNOSTICS v_state = RETURNED_SQLSTATE;
+    PERFORM extensions.ok(false, 'cross-client payment write failed for an unrelated SQLSTATE ' || v_state);
+  END;
+END
+$test$;
+
+SELECT extensions.ok(
+  NOT has_table_privilege('anon', 'public.clients', 'SELECT')
+  AND NOT has_table_privilege('anon', 'public.client_projects', 'SELECT')
+  AND NOT has_table_privilege('anon', 'public.project_proposals', 'SELECT')
+  AND NOT has_table_privilege('anon', 'public.project_agreements', 'SELECT')
+  AND NOT has_table_privilege('anon', 'public.invoices', 'SELECT')
+  AND NOT has_table_privilege('anon', 'public.invoice_payments', 'SELECT'),
+  'anonymous role has no direct reads on client or commercial records'
+);
+
+RESET ROLE;
+SET LOCAL ROLE anon;
+DO $test$
+DECLARE
+  v_state text;
+BEGIN
+  BEGIN
+    PERFORM 1 FROM public.client_projects;
+    PERFORM extensions.ok(false, 'anonymous users cannot list client projects');
+  EXCEPTION WHEN insufficient_privilege THEN
+    PERFORM extensions.ok(true, 'anonymous project listing is denied by the actual table privilege boundary');
+  WHEN OTHERS THEN
+    GET STACKED DIAGNOSTICS v_state = RETURNED_SQLSTATE;
+    PERFORM extensions.ok(false, 'anonymous project read failed for an unrelated SQLSTATE ' || v_state);
+  END;
+END
+$test$;
+
+RESET ROLE;
+SELECT extensions.ok(
+  NOT has_function_privilege(
+    'authenticated',
+    'public.create_invoice_payment_attempt(uuid,uuid,text,text)',
+    'EXECUTE'
+  )
+  AND NOT has_function_privilege(
+    'authenticated',
+    'public.attach_invoice_payment_checkout(uuid,text,text)',
+    'EXECUTE'
+  )
+  AND NOT has_function_privilege(
+    'authenticated',
+    'public.fail_invoice_payment_attempt(uuid,text,text)',
+    'EXECUTE'
+  )
+  AND NOT has_function_privilege(
+    'authenticated',
+    'public.process_commercial_payment_event(text,text,text,uuid,text,text,text,numeric,text)',
+    'EXECUTE'
+  )
+  AND NOT has_function_privilege(
+    'anon',
+    'public.process_commercial_payment_event(text,text,text,uuid,text,text,text,numeric,text)',
+    'EXECUTE'
+  ),
+  'payment-attempt and reconciliation RPC privileges are limited to service_role'
+);
+
+SET LOCAL ROLE authenticated;
+SELECT set_config('request.jwt.claim.sub', (SELECT auth_a::text FROM rls_test_state), true);
+DO $test$
+DECLARE
+  v_state text;
+BEGIN
+  BEGIN
+    PERFORM public.process_commercial_payment_event(
+      'qa-fixture', 'forbidden-event', 'payment.updated', gen_random_uuid(),
+      'transaction', 'paid', 'card', 1.00, 'USD'
+    );
+    PERFORM extensions.ok(false, 'authenticated users cannot call financial reconciliation');
+  EXCEPTION WHEN insufficient_privilege THEN
+    PERFORM extensions.ok(true, 'financial reconciliation is denied specifically by function privileges');
+  WHEN OTHERS THEN
+    GET STACKED DIAGNOSTICS v_state = RETURNED_SQLSTATE;
+    PERFORM extensions.ok(false, 'financial RPC failed for an unrelated SQLSTATE ' || v_state);
+  END;
+END
+$test$;
+RESET ROLE;
+
+SET LOCAL ROLE authenticated;
+SELECT set_config('request.jwt.claim.sub', (SELECT auth_admin::text FROM rls_test_state), true);
+SELECT set_config(
+  'request.jwt.claims',
+  jsonb_build_object(
+    'sub', (SELECT auth_admin FROM rls_test_state),
+    'role', 'authenticated',
+    'app_metadata', '{"role":"admin","app_role":"admin"}'::jsonb
+  )::text,
+  true
+);
+SELECT extensions.ok(
+  auth.uid() = (SELECT auth_admin FROM rls_test_state)
+  AND auth.jwt()->'app_metadata'->>'role' = 'admin',
+  'admin test identity is explicitly simulated with app metadata, not treated as a real JWT session'
+);
+
+DO $test$
+DECLARE
+  v_state text;
+BEGIN
+  BEGIN
+    PERFORM 1 FROM public.commercial_financial_events;
+    PERFORM extensions.ok(false, 'simulated admin role cannot bypass financial audit table privileges');
+  EXCEPTION WHEN insufficient_privilege THEN
+    PERFORM extensions.ok(true, 'financial audit table remains inaccessible to simulated admin JWT claims');
+  WHEN OTHERS THEN
+    GET STACKED DIAGNOSTICS v_state = RETURNED_SQLSTATE;
+    PERFORM extensions.ok(false, 'admin audit read failed for an unrelated SQLSTATE ' || v_state);
+  END;
+END
+$test$;
+RESET ROLE;
+
+SELECT extensions.ok(
+  to_regclass('storage.objects') IS NOT NULL
+  AND EXISTS (
+    SELECT 1
+    FROM pg_class AS relation
+    JOIN pg_namespace AS namespace ON namespace.oid = relation.relnamespace
+    WHERE namespace.nspname = 'storage'
+      AND relation.relname = 'objects'
+      AND relation.relrowsecurity
+  ),
+  'storage object table has RLS enabled; object-owner policy coverage requires a configured test bucket'
+);
+
+SELECT extensions.finish();
+ROLLBACK;

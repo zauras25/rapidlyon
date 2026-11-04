@@ -1,18 +1,4 @@
-import Link from "next/link";
-
-export default function NotFound() {
-  return (
-    <div className="mx-auto flex min-h-[60vh] max-w-4xl items-center justify-center px-4 py-16 sm:px-6 lg:px-8">
-      <div className="rounded-card border border-divider bg-surface p-8 text-center shadow-compact">
-        <p className="text-xs uppercase tracking-label text-muted">404</p>
-        <h1 className="mt-4 text-4xl tracking-display-wide text-ink">This page could not be found.</h1>
-        <p className="mt-4 text-base leading-8 text-body">
-          The page you are looking for may have moved, or it may not exist in this version of the studio website.
-        </p>
-        <Link href="/" className="button-primary mt-8">
-          Return home
-        </Link>
-      </div>
-    </div>
-  );
-}
+import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
+import { PublicShell } from '@/components/site/chrome';
+export default function NotFound(){return <PublicShell><main><div className="shell" style={{minHeight:'65vh',display:'flex',flexDirection:'column',justifyContent:'center',alignItems:'flex-start',paddingBlock:80}}><p className="eyebrow">404 / Page not found</p><h1 style={{fontSize:'clamp(3.5rem,8vw,7rem)'}}>This isn&apos;t the<br/><span style={{color:'#7eaf28'}}>end of the road.</span></h1><p className="lead" style={{marginTop:28}}>The page you&apos;re looking for may have moved. Let&apos;s get you back to something good.</p><Link href="/" className="btn btn-dark" style={{marginTop:20}}><ArrowLeft size={17}/> Back to homepage</Link></div></main></PublicShell>}

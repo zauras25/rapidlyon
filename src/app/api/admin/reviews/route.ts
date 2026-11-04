@@ -58,6 +58,7 @@ export async function GET() {
           Authorization: `Bearer ${config.serviceRoleKey}`,
         },
         cache: "no-store",
+        signal: AbortSignal.timeout(8000),
       },
     );
 
@@ -69,13 +70,17 @@ export async function GET() {
     const rows: unknown = await response.json();
     const parsed = adminReviewRecordSchema.array().safeParse(rows);
     if (!parsed.success) {
-      console.error("Supabase review admin list returned records in an unexpected format.");
+      console.error("Supabase review admin list returned records in an unexpected format.",
+        parsed.error.issues.slice(0, 8).map((issue) => ({ path: issue.path.join("."), code: issue.code })));
+      // Only validation paths/error codes are logged; no review or client data is logged.
       return NextResponse.json({ success: false, message: "Reviews could not be loaded." }, { status: 502 });
     }
 
     const clientIds = [...new Set(parsed.data.flatMap((review) => review.client_id ? [review.client_id] : []))];
     const projectIds = [...new Set(parsed.data.flatMap((review) => review.client_project_id ? [review.client_project_id] : []))];
-    const [clients, projects] = await Promise.all([
+    // A failed optional client/project label lookup must not hide valid reviews.
+    // Do not log personally identifying review or client data.
+    const contextResults = await Promise.allSettled([
       clientIds.length
         ? readRows(
             `${config.url}/rest/v1/clients?select=id,name,email&id=in.(${clientIds.join(",")})`,
@@ -91,6 +96,11 @@ export async function GET() {
           )
         : Promise.resolve([]),
     ]);
+    if (contextResults.some((result) => result.status === "rejected")) {
+      console.error("Review list loaded, but optional client/project context query failed.");
+    }
+    const clients = contextResults[0].status === "fulfilled" ? contextResults[0].value : [];
+    const projects = contextResults[1].status === "fulfilled" ? contextResults[1].value : [];
     const clientById = new Map(clients.map((client) => [client.id, client]));
     const projectById = new Map(projects.map((project) => [project.id, project]));
     const reviews = parsed.data.map((review) => ({

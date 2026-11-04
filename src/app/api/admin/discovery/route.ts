@@ -14,6 +14,7 @@ export async function GET(request: Request) {
   }
 
   const url = new URL(request.url);
+  const archived = url.searchParams.get("archived") === "true";
   const search = (url.searchParams.get("q") || "").trim().slice(0, 100).replace(/[,*()%_\\]/g, "");
   const requestedStatus = url.searchParams.get("status");
   const status = requestedStatus ? discoveryStatusSchema.safeParse(requestedStatus) : null;
@@ -22,7 +23,7 @@ export async function GET(request: Request) {
   }
 
   const query = new URLSearchParams({
-    select: "id,full_name,email,company,services,discovery_method,status,created_at,next_action,follow_up_at,notification_status,notification_updated_at",
+    select: "id,serial_no,source_inquiry_id,full_name,email,company,services,discovery_method,status,created_at,next_action,follow_up_at,notification_status,notification_updated_at,archived_at",
     order: "created_at.desc",
     limit: "200",
   });
@@ -30,6 +31,7 @@ export async function GET(request: Request) {
     query.set("or", `(full_name.ilike.*${search}*,email.ilike.*${search}*,company.ilike.*${search}*)`);
   }
   if (status?.success) query.set("status", `eq.${status.data}`);
+  query.set("archived_at", archived ? "not.is.null" : "is.null");
 
   try {
     const response = await fetch(`${config.url}/rest/v1/discovery_submissions?${query}`, {

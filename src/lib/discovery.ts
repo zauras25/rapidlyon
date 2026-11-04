@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { engagementOptions } from "@/data/engagement-options";
 
 export const discoveryServices = [
   "Product Design",
@@ -27,7 +28,22 @@ export const discoveryMethods = [
   "Live demo or product walkthrough",
 ] as const;
 
-const answersSchema = z.record(z.string(), z.union([z.string().max(5000), z.array(z.string().max(200)).max(50)]));
+const engagementOptionIds = new Set<string>(engagementOptions.map((option) => option.id));
+const answersSchema = z.record(z.string(), z.union([z.string().max(5000), z.array(z.string().max(200)).max(50)]))
+  .superRefine((answers, context) => {
+    const selectedPackageId = answers.selectedPackageId;
+    if (
+      selectedPackageId !== undefined &&
+      (typeof selectedPackageId !== "string" ||
+        (selectedPackageId !== "" && !engagementOptionIds.has(selectedPackageId)))
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["selectedPackageId"],
+        message: "Choose a valid service path.",
+      });
+    }
+  });
 
 export const discoverySubmissionSchema = z.object({
   idempotencyKey: z.string().uuid(),
@@ -102,6 +118,7 @@ export const discoveryNotificationStatusSchema = z.enum(discoveryNotificationSta
 
 export const discoveryAdminSummarySchema = z.object({
   id: z.string().uuid(),
+  serial_no: z.string(),
   full_name: z.string(),
   email: z.string().email(),
   company: z.string(),

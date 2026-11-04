@@ -36,7 +36,9 @@ export async function GET() {
     const parsedRows = publishedReviewSchema.array().safeParse(rows);
 
     if (!parsedRows.success) {
-      console.error("Supabase returned review records in an unexpected format.");
+      console.error("Supabase returned review records in an unexpected format.",
+        parsedRows.error.issues.slice(0, 8).map((issue) => ({ path: issue.path.join("."), code: issue.code })));
+      // Avoid logging sensitive review content.
       return NextResponse.json(
         { success: false, message: "Published reviews could not be loaded right now." },
         { status: 502 },

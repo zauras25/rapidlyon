@@ -28,14 +28,14 @@ const reviewProjectContextSchema = z.object({
 
 export const publishedReviewSchema = reviewSchema.extend({
   id: z.string().uuid(),
-  created_at: z.string().datetime(),
+  created_at: z.string().datetime({ offset: true }),
   display_order: z.number().int().min(0).max(100000),
 });
 
 export const adminReviewRecordSchema = adminReviewSchema.extend({
   id: z.string().uuid(),
-  created_at: z.string().datetime(),
-  updated_at: z.string().datetime(),
+  created_at: z.string().datetime({ offset: true }),
+  updated_at: z.string().datetime({ offset: true }),
   client_id: z.string().uuid().nullable().optional(),
   client_project_id: z.string().uuid().nullable().optional(),
   client: reviewClientContextSchema.nullable().optional(),

@@ -29,11 +29,11 @@ export const siteConfig = {
   email: "hello@rapidlyon.com",
   address: "Remote-first studio; project fit and working hours are confirmed during discovery.",
   navigation: [
-    { label: "Work", href: "/work" },
     { label: "Services", href: "/services" },
+    { label: "Work", href: "/work" },
+    { label: "Process", href: "/process" },
     { label: "Pricing", href: "/pricing" },
-    { label: "Resources", href: "/insights" },
-    { label: "FAQ", href: "/faq" },
+    { label: "About", href: "/about" },
     { label: "Contact", href: "/contact" },
   ] satisfies NavItem[],
 };
@@ -316,7 +316,7 @@ export const faqs = [
   {
     question: "What does a typical project engagement look like?",
     answer:
-      "We start by understanding the audience, goals, available materials, and constraints. Then we confirm a written scope and move through the agreed design or development work, review, QA where relevant, and handoff. The exact steps depend on the service and package you choose.",
+      "We review your requirements, confirm the right starting package and prepare a written proposal covering deliverables, timeline, revisions and payment terms. The listed package price is an estimate, not an automatic acceptance or binding quote.",
   },
   {
     question: "What Product Design work can you help with?",
@@ -326,22 +326,22 @@ export const faqs = [
   {
     question: "Can I request design only, development only, or both?",
     answer:
-      "Yes. You can choose Product Design, Next.js Development from approved designs, or the combined Product Design + Next.js Development engagement. The Pricing page compares the available starting scopes for these options.",
+      "Yes. Product Design, Next.js Development, a combined design-and-build engagement, and SEO can each be scoped around your needs. Pricing is confirmed in an approved written proposal in USD or PKR, as agreed.",
   },
   {
     question: "How is my project price determined?",
     answer:
-      "Prices on the Pricing page are one-time USD starting fees for the listed page, template, and deliverable limits. The final quote depends on the number of pages and unique layouts, readiness of designs and content, required interactions or integrations, and any additional research or features. We confirm the exact scope and fee in writing before work begins.",
+      "We review deliverables, exclusions, complexity, dependencies, timeline, and review requirements before preparing a custom written quote. Public service selections are not prices or binding offers. The proposal and agreement state the approved amount and currency.",
   },
   {
     question: "What is included in a package, and what may cost extra?",
     answer:
-      "Each package lists its page or template limits, deliverables, and design revision rounds. Work beyond those limits—including unlisted features, extra templates, custom backend systems, accounts, e-commerce, copywriting, or paid third-party services—is not automatically included and must be scoped and approved separately.",
+      "Service paths describe possible work, not a fixed package or binding deliverable list. The proposal confirms the exact page or template count, revisions, integrations, milestones and exclusions. Custom backend systems, accounts, e-commerce, third-party charges and added scope are estimated separately.",
   },
   {
     question: "How do design revision rounds work?",
     answer:
-      "A revision round is one consolidated set of feedback on the presented design, followed by updates within the agreed direction. The number of rounds depends on the selected package. A new direction, additional feature, or substantial scope change may need a separate estimate and written approval.",
+      "Revision rounds are set in your written proposal. One round means one consolidated set of feedback on the presented work. Major direction changes or additional features may require a revised estimate and approval.",
   },
   {
     question: "Can you build a website from designs my team already has?",
@@ -351,7 +351,7 @@ export const faqs = [
   {
     question: "Do your packages automatically include a custom backend, accounts, or e-commerce?",
     answer:
-      "No. These features are not automatically included in the listed starting packages. Share what the product needs to do and we can assess the technical requirements, dependencies, and a separate written scope and quote.",
+      "No. These are not included by default. We assess the requirements and include them in the written scope and quote when requested.",
   },
   {
     question: "What if I do not have a finished brief yet?",
@@ -362,6 +362,11 @@ export const faqs = [
     question: "When is a project considered booked, and how do we agree the scope?",
     answer:
       "An enquiry or discovery request is a lead, not an accepted project or binding quote. After reviewing fit and feasibility, we define the objective, deliverables, exclusions, assumptions, milestones and estimated timeline, price, revisions, approvals, dependencies, and client responsibilities in writing. Any change to agreed scope is reviewed for cost and schedule impact and approved before work changes. Work begins only after the agreement and payment terms are accepted; meeting times are confirmed separately.",
+  },
+  {
+    question: "How are project payments scheduled?",
+    answer:
+      "The standard schedule is 40% advance, 30% at the milestone named in the accepted agreement, and 30% after final approval before handover. The written proposal and agreement confirm the exact amounts, currency, milestone, and due dates.",
   },
   {
     question: "Can you guarantee search rankings or traffic?",

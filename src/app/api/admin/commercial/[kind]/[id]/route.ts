@@ -10,6 +10,7 @@ import {
   sendCommercialEmail,
   uuidSchema,
 } from "@/lib/commercial";
+import { createProjectPaymentSchedule } from "@/lib/payment-schedule";
 import { checkRateLimit, rateLimitFailure } from "@/lib/rate-limit";
 
 const paramsSchema = z.object({
@@ -18,6 +19,7 @@ const paramsSchema = z.object({
 });
 const recordSchema = z.record(z.string(), z.unknown());
 const actionSchema = z.object({ action: z.enum(["send", "expire"]) });
+const contractCurrencySchema = z.enum(["USD", "PKR"]);
 const lineItemSchema = z.object({
   description: z.string().trim().min(1).max(500),
   quantity: z.string().regex(/^(?:0|[1-9]\d{0,7})(?:\.\d{1,2})?$/).refine((value) => Number(value) > 0),
@@ -32,10 +34,11 @@ const proposalDraftSchema = z.object({
   deliverables: z.array(z.string().trim().min(1).max(500)).max(50),
   exclusions: z.array(z.string().trim().min(1).max(500)).max(50),
   timeline: z.record(z.string(), z.unknown()),
-  milestones: z.array(z.record(z.string(), z.unknown())).max(50),
+  milestones: z.array(z.record(z.string(), z.unknown())).min(1).max(50),
+  agreed_milestone_position: z.number().int().min(1).max(50).default(1),
   payment_schedule: z.array(z.record(z.string(), z.unknown())).max(20),
   amount: z.string().regex(/^(?:0|[1-9]\d{0,9})(?:\.\d{1,2})?$/),
-  currency: z.string().regex(/^[A-Z]{3}$/),
+  currency: contractCurrencySchema,
   notes: z.string().max(5000),
   expires_at: z.string().datetime({ offset: true }).nullable(),
 });
@@ -49,7 +52,7 @@ const invoiceDraftSchema = z.object({
   invoice_number: z.string().trim().min(1).max(80),
   issue_date: z.string().date(),
   due_date: z.string().date(),
-  currency: z.string().regex(/^[A-Z]{3}$/),
+  currency: contractCurrencySchema,
   discount: z.string().regex(/^(?:0|[1-9]\d{0,9})(?:\.\d{1,2})?$/),
   tax: z.string().regex(/^(?:0|[1-9]\d{0,9})(?:\.\d{1,2})?$/),
   notes: z.string().max(5000),
@@ -101,6 +104,29 @@ export async function PATCH(request: Request, context: { params: Promise<{ kind:
     return NextResponse.json({ success: false, message: "The due date must be on or after the issue date." }, { status: 400 });
   }
 
+  let proposalPaymentSchedule: ReturnType<typeof createProjectPaymentSchedule> = [];
+  if (parsed.data.kind === "proposal") {
+    const agreedMilestone = parsed.data.milestones[parsed.data.agreed_milestone_position - 1]?.title;
+    if (typeof agreedMilestone !== "string" || !agreedMilestone.trim()) {
+      return NextResponse.json({
+        success: false,
+        message: "Choose an agreed milestone that has a title.",
+      }, { status: 400 });
+    }
+    try {
+      proposalPaymentSchedule = createProjectPaymentSchedule(
+        parsed.data.amount,
+        parsed.data.currency,
+        parsed.data.agreed_milestone_position,
+      );
+    } catch (error) {
+      return NextResponse.json({
+        success: false,
+        message: error instanceof Error ? error.message : "The proposal payment schedule is invalid.",
+      }, { status: 400 });
+    }
+  }
+
   try {
     const data = parsed.data;
     const record = data.kind === "invoice"
@@ -114,7 +140,9 @@ export async function PATCH(request: Request, context: { params: Promise<{ kind:
           notes: data.notes,
           payment_instructions: data.payment_instructions,
         }
-      : data;
+      : data.kind === "proposal"
+        ? { ...data, payment_schedule: proposalPaymentSchedule }
+        : data;
     const items = data.kind === "invoice"
       ? data.line_items.map((item, position) => ({ ...item, position }))
       : [];

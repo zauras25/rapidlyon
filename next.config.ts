@@ -18,7 +18,11 @@ const nextConfig: NextConfig = {
       });
     }
 
-    return [{ source: "/:path*", headers: securityHeaders }];
+    return [
+      {source: '/:path*',headers:securityHeaders},
+      {source: '/discovery',headers:[{key:'Referrer-Policy',value:'no-referrer'}]},
+      {source: '/request-status',headers:[{key:'Referrer-Policy',value:'no-referrer'}]},
+    ];
   },
   async redirects() {
     return [

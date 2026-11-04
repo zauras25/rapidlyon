@@ -1,8 +1,10 @@
 import type { MetadataRoute } from "next";
+import { connection } from "next/server";
 import { insights, services, siteConfig } from "@/data/site";
 import { getPublishedWorkProjects } from "@/lib/work-project-storage";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  await connection();
   const projects = await getPublishedWorkProjects();
   const routes = [
     { path: "/", priority: 1 },

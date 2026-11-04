@@ -1,0 +1,13 @@
+﻿Component,Property 1,Values 1,Property 2,Values 2,Property 3,Values 3,Source,Handoff note
+Action/Button,variant,primary|secondary|outline,size,sm|md,state,default|hover|focus|disabled,src/components/ui/button.tsx,Implementation exists; validate states in Figma
+Surface/Card,variant,default,size,content-driven,state,default,src/components/ui/card.tsx,Native section element; clarify when article semantics required
+Form/TextField,state,default|focus|error|disabled,size,md,type,text|email|tel,src/styles/globals.css,.form-field; formal React component needed
+Form/TextArea,state,default|focus|error|disabled,size,md,resize,vertical,src/styles/globals.css,CSS-driven; React abstraction pending
+Form/Select,state,default|focus|error|disabled,size,md,selection,empty|filled,src/styles/globals.css,CSS-driven; React abstraction pending
+Navigation/Header,viewport,desktop|mobile,state,closed|open,theme,light,src/components/site/chrome.tsx,Implement responsive and keyboard states
+Navigation/Footer,viewport,desktop|mobile,state,default,theme,light,src/components/site/chrome.tsx,Verify legal/social unavailable states
+Marketing/ServiceCard,viewport,desktop|mobile,state,default|hover,variant,standard|accent,src/styles/globals.css,Specialized style; extracting a unified variant API recommended
+Marketing/PricingCard,variant,standard|recommended,state,default|hover|focus,viewport,desktop|mobile,src/styles/globals.css,Repeated pricing patterns require Figma variants
+Feedback/Status,intent,success|warning|neutral|error,size,sm|md,state,default,src/styles/globals.css,Inventory visual colors and contrast
+Layout/PageHero,viewport,desktop|tablet|mobile,state,default,variant,default,src/components/site/sections.tsx,"Content variants, not page-specific copies"
+Layout/Section,spacing,standard|tight,surface,canvas|subtle|dark,viewport,desktop|mobile,src/styles/globals.css,Use responsive Auto Layout

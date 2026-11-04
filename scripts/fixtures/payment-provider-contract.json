@@ -1,0 +1,29 @@
+{
+  "provider": "safepay",
+  "external_contract_verified": false,
+  "sandbox_credentials_available": false,
+  "checkout_enabled": false,
+  "provider_endpoint": null,
+  "authentication_scheme": null,
+  "webhook_signature_scheme": null,
+  "fixture_scope": "normalized internal adapter boundary only",
+  "normalized_checkout_request": {
+    "invoiceId": "00000000-0000-4000-8000-000000000001",
+    "paymentId": "00000000-0000-4000-8000-000000000002",
+    "amountMinor": 12345,
+    "currency": "USD",
+    "returnUrl": "https://example.invalid/client/billing",
+    "webhookUrl": "https://example.invalid/api/webhooks/safepay"
+  },
+  "normalized_webhook_event": {
+    "provider": "safepay",
+    "eventId": "internal-fixture-event",
+    "eventType": "internal.fixture",
+    "paymentId": "00000000-0000-4000-8000-000000000002",
+    "transactionId": "internal-fixture-transaction",
+    "amountMinor": 12345,
+    "currency": "USD",
+    "status": "paid",
+    "paymentMethod": null
+  }
+}

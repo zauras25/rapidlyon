@@ -9,9 +9,11 @@ import {
   readCommercialRows,
   uuidSchema,
 } from "@/lib/commercial";
+import { createProjectPaymentSchedule } from "@/lib/payment-schedule";
 import { checkRateLimit, rateLimitFailure } from "@/lib/rate-limit";
 
 const rowSchema = z.record(z.string(), z.unknown());
+const contractCurrencySchema = z.enum(["USD", "PKR"]);
 const lineItemSchema = z.object({
   description: z.string().trim().min(1).max(500),
   quantity: z.string().regex(/^(?:0|[1-9]\d{0,7})(?:\.\d{1,2})?$/).refine((value) => Number(value) > 0),
@@ -28,10 +30,11 @@ const proposalSchema = z.object({
   deliverables: z.array(z.string().trim().min(1).max(500)).max(50).default([]),
   exclusions: z.array(z.string().trim().min(1).max(500)).max(50).default([]),
   timeline: z.record(z.string(), z.unknown()).default({}),
-  milestones: z.array(z.record(z.string(), z.unknown())).max(50).default([]),
+  milestones: z.array(z.record(z.string(), z.unknown())).min(1).max(50),
+  agreed_milestone_position: z.number().int().min(1).max(50).default(1),
   payment_schedule: z.array(z.record(z.string(), z.unknown())).max(20).default([]),
   amount: z.string().regex(/^(?:0|[1-9]\d{0,9})(?:\.\d{1,2})?$/),
-  currency: z.string().regex(/^[A-Z]{3}$/),
+  currency: contractCurrencySchema,
   notes: z.string().max(5000).default(""),
   expires_at: z.string().datetime({ offset: true }).nullable().default(null),
 });
@@ -52,7 +55,7 @@ const invoiceSchema = z.object({
   invoice_number: z.string().trim().min(1).max(80),
   issue_date: z.string().date(),
   due_date: z.string().date(),
-  currency: z.string().regex(/^[A-Z]{3}$/),
+  currency: contractCurrencySchema,
   discount: z.string().regex(/^(?:0|[1-9]\d{0,9})(?:\.\d{1,2})?$/).default("0"),
   tax: z.string().regex(/^(?:0|[1-9]\d{0,9})(?:\.\d{1,2})?$/).default("0"),
   notes: z.string().max(5000).default(""),
@@ -75,7 +78,7 @@ export async function GET() {
     return NextResponse.json({ success: false, message: "Sign in as an administrator." }, { status: 401 });
   }
   try {
-    const [clients, projects, proposals, agreements, invoices, items, payments] =
+    const [clients, projects, proposals, agreements, invoices, items, payments, financialEvents] =
       await Promise.all([
         readRows("clients", "id,name,email,status"),
         readRows("client_projects", "id,client_id,name,status,currency"),
@@ -84,6 +87,7 @@ export async function GET() {
         readRows("invoices", "*"),
         readRows("invoice_line_items", "*"),
         readRows("invoice_payments", "id,invoice_id,client_id,provider,provider_transaction_id,amount,currency,status,payment_method,created_at,completed_at"),
+        readRows("commercial_financial_events", "id,event_type,client_id,agreement_id,invoice_id,payment_id,installment_sequence,amount,currency,details,created_at"),
       ]);
     return NextResponse.json({
       success: true,
@@ -94,6 +98,7 @@ export async function GET() {
       invoices,
       lineItems: items,
       payments,
+      financialEvents,
     }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     const failure = error instanceof CommercialError
@@ -139,6 +144,29 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: false, message: "The due date must be on or after the issue date." }, { status: 400 });
   }
 
+  let proposalPaymentSchedule: ReturnType<typeof createProjectPaymentSchedule> = [];
+  if (parsed.data.kind === "proposal") {
+    const agreedMilestone = parsed.data.milestones[parsed.data.agreed_milestone_position - 1]?.title;
+    if (typeof agreedMilestone !== "string" || !agreedMilestone.trim()) {
+      return NextResponse.json({
+        success: false,
+        message: "Choose an agreed milestone that has a title.",
+      }, { status: 400 });
+    }
+    try {
+      proposalPaymentSchedule = createProjectPaymentSchedule(
+        parsed.data.amount,
+        parsed.data.currency,
+        parsed.data.agreed_milestone_position,
+      );
+    } catch (error) {
+      return NextResponse.json({
+        success: false,
+        message: error instanceof Error ? error.message : "The proposal payment schedule is invalid.",
+      }, { status: 400 });
+    }
+  }
+
   try {
     const data = parsed.data;
     const record = data.kind === "invoice"
@@ -146,6 +174,8 @@ export async function POST(request: Request) {
           ...data,
           line_items: undefined,
         }
+      : data.kind === "proposal"
+        ? { ...data, payment_schedule: proposalPaymentSchedule }
       : data;
     const items = data.kind === "invoice"
       ? data.line_items.map((item, position) => ({ ...item, position }))

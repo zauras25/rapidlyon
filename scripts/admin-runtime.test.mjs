@@ -40,6 +40,17 @@ test('malformed JSON gets a controlled error', async () => {
   }), 'clients'), /Response contains invalid JSON/);
 });
 
+test('health endpoint returns an uncached liveness signal without dependency claims', async () => {
+  const route = load('../src/app/api/health/route.ts', {}, { Response });
+  const response = route.GET();
+  assert.equal(response.headers.get('cache-control'), 'no-store');
+  const body = await response.json();
+  assert.equal(body.status, 'ok');
+  assert.ok(Number.isFinite(Date.parse(body.checkedAt)));
+  assert.equal('database' in body, false);
+  assert.equal('payment' in body, false);
+});
+
 test('admin expiry is evaluated only after the request connection is established', async () => {
   let connected = false;
   let token;

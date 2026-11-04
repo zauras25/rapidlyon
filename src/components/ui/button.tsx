@@ -1,52 +1,22 @@
-import Link from "next/link";
-import type { ComponentProps, ButtonHTMLAttributes } from "react";
-
-export type ButtonVariant =
-  | "primary"
-  | "secondary"
-  | "ghost"
-  | "destructive"
-  | "link";
-
-const variantClasses: Record<ButtonVariant, string> = {
-  primary: "button-primary",
-  secondary: "button-secondary",
-  ghost: "button-ghost",
-  destructive: "button-destructive",
-  link: "button-link",
-};
+﻿import type { ButtonHTMLAttributes } from "react";
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: ButtonVariant;
-};
-
-type ButtonLinkProps = Omit<ComponentProps<typeof Link>, "className"> & {
-  className?: string;
-  variant?: ButtonVariant;
+  variant?: "primary" | "secondary" | "outline";
+  size?: "sm" | "md";
 };
 
 export function Button({
   variant = "primary",
+  size = "md",
   className = "",
+  type = "button",
   ...props
 }: ButtonProps) {
   return (
     <button
-      className={`${variantClasses[variant]} ${className}`.trim()}
       {...props}
-    />
-  );
-}
-
-export function ButtonLink({
-  variant = "primary",
-  className = "",
-  ...props
-}: ButtonLinkProps) {
-  return (
-    <Link
-      className={`${variantClasses[variant]} ${className}`.trim()}
-      {...props}
+      type={type}
+      className={`ds-button ds-button--${variant} ds-button--${size} ${className}`.trim()}
     />
   );
 }

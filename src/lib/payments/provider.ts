@@ -12,7 +12,7 @@ export type PaymentCheckoutRequest = {
   invoiceId: string;
   paymentId: string;
   amountMinor: number;
-  currency: string;
+  currency: "USD" | "PKR";
   returnUrl: string;
   webhookUrl: string;
 };
@@ -29,6 +29,8 @@ export type VerifiedPaymentEvent = {
   eventType: string;
   paymentId: string;
   transactionId: string;
+  amountMinor: number;
+  currency: "USD" | "PKR";
   status: Exclude<PaymentStatus, "awaiting_payment">;
   paymentMethod: string | null;
 };

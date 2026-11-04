@@ -7,7 +7,24 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --test scripts/*.test.mjs"
+    "test": "node scripts/v4-release-check.mjs",
+    "test:staging": "node scripts/staging-integration.test.mjs",
+    "test:design": "node scripts/v3-structure-check.mjs",
+    "qa:staging": "node scripts/staging-commercial-e2e.mjs",
+    "qa:staging:guarded": "powershell -NoProfile -ExecutionPolicy Bypass -File Run-Staging-QA.ps1",
+    "qa:visual": "node scripts/browser-design-qa.mjs",
+    "qa:components": "node scripts/browser-component-qa.mjs",
+    "qa:rhythm": "node scripts/visual-rhythm-qa.mjs",
+    "qa:full-site": "node scripts/full-site-screenshots.mjs",
+    "qa:save-session": "node scripts/save-qa-session.mjs",
+    "qa:reference": "node scripts/capture-summit-reference.mjs",
+    "test:v3": "node scripts/v3-structure-check.mjs",
+    "test:legacy": "node scripts/v4-release-check.mjs",
+    "test:v4": "node scripts/v4-release-check.mjs",
+    "qa:v4": "node scripts/v4-visual-qa.mjs",
+    "test:roadmap": "node --test scripts/roadmap-smoke.test.mjs",
+    "qa:senior-product": "node scripts/senior-product-qa.mjs",
+    "check:figma": "node scripts/check-figma-readiness.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0",
@@ -15,6 +32,7 @@
     "next": "16.4.2",
     "react": "19.3.1",
     "react-dom": "19.3.1",
+    "server-only": "^0.0.1",
     "zod": "^4.6.7"
   },
   "devDependencies": {

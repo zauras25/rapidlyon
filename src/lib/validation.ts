@@ -9,6 +9,7 @@ const legacyServiceValues = new Set([
 ]);
 
 export const inquirySchema = z.object({
+  idempotencyKey: z.string().uuid().optional(),
   name: z.string().trim().min(2, "Please enter your full name.").max(120, "Your name must be 120 characters or fewer."),
   email: z.string().trim().email("Please enter a valid email address.").max(254, "Your email address must be 254 characters or fewer."),
   company: z.string().trim().max(120).optional().or(z.literal("")),

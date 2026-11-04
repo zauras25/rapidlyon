@@ -1,0 +1,139 @@
+begin;
+
+select plan(22);
+
+select ok(
+  pg_catalog.to_regclass('public.invoices') is not null
+    and exists (
+      select 1 from pg_catalog.pg_attribute
+      where attrelid = 'public.invoices'::regclass
+        and attname = 'installment_sequence'
+        and not attisdropped
+    ),
+  'invoice installment sequence column exists'
+);
+select ok(
+  exists (
+    select 1 from pg_catalog.pg_attribute
+    where attrelid = 'public.invoices'::regclass
+      and attname = 'installment_stage'
+      and not attisdropped
+  ),
+  'invoice installment stage column exists'
+);
+select ok(
+  pg_catalog.to_regclass('public.commercial_financial_events') is not null,
+  'financial audit table exists'
+);
+select ok(
+  pg_catalog.to_regclass('public.invoices_agreement_installment_unique_idx') is not null,
+  'invoice issuance is unique per agreement and installment'
+);
+select ok(
+  pg_catalog.to_regclass('public.invoice_payments_provider_transaction_idx') is not null,
+  'provider transaction IDs have a unique index'
+);
+select ok(
+  pg_catalog.to_regprocedure('public.accept_project_proposal(uuid)') is not null,
+  'proposal acceptance RPC exists'
+);
+select ok(
+  pg_catalog.to_regprocedure('public.accept_project_agreement(uuid)') is not null,
+  'agreement acceptance RPC exists'
+);
+select ok(
+  pg_catalog.to_regprocedure('public.issue_agreement_installment_invoice(uuid,smallint,uuid)') is not null,
+  'installment invoice issuance RPC exists'
+);
+select ok(
+  pg_catalog.to_regprocedure('public.create_invoice_payment_attempt(uuid,uuid,text,text)') is not null,
+  'payment attempt RPC exists'
+);
+select ok(
+  pg_catalog.to_regprocedure('public.process_commercial_payment_event(text,text,text,uuid,text,text,text,numeric,text)') is not null,
+  'verified payment reconciliation RPC exists'
+);
+select ok(
+  exists (
+    select 1 from pg_catalog.pg_trigger
+    where tgrelid = 'public.project_agreements'::regclass
+      and tgname = 'commercial_agreement_acceptance_invoice'
+      and not tgisinternal
+  ),
+  'agreement acceptance is connected to advance invoice issuance'
+);
+select ok(
+  exists (
+    select 1 from pg_catalog.pg_trigger
+    where tgrelid = 'public.project_milestones'::regclass
+      and tgname = 'commercial_milestone_installment_invoices'
+      and not tgisinternal
+  ),
+  'milestone approval is connected to installment issuance'
+);
+select ok(
+  exists (
+    select 1 from pg_catalog.pg_trigger
+    where tgrelid = 'public.invoices'::regclass
+      and tgname = 'contract_installment_total_check'
+      and tgdeferrable
+      and tginitdeferred
+      and not tgisinternal
+  ),
+  'installment total check is deferred until transaction completion'
+);
+select ok(
+  (select relrowsecurity from pg_catalog.pg_class where oid = 'public.commercial_financial_events'::regclass),
+  'financial audit table has row-level security enabled'
+);
+select ok(
+  not pg_catalog.has_table_privilege('anon', 'public.commercial_financial_events', 'select'),
+  'anonymous role cannot read financial audit events'
+);
+select ok(
+  not pg_catalog.has_table_privilege('authenticated', 'public.commercial_financial_events', 'insert'),
+  'authenticated role cannot forge financial audit events'
+);
+select ok(
+  pg_catalog.has_table_privilege('service_role', 'public.commercial_financial_events', 'select'),
+  'service role can read financial audit events'
+);
+select ok(
+  pg_catalog.has_table_privilege('service_role', 'public.commercial_financial_events', 'insert'),
+  'service role can append financial audit events'
+);
+select ok(
+  not pg_catalog.has_function_privilege(
+    'authenticated',
+    'public.create_invoice_payment_attempt(uuid,uuid,text,text)',
+    'execute'
+  ),
+  'authenticated users cannot call the privileged payment attempt RPC'
+);
+select ok(
+  pg_catalog.has_function_privilege(
+    'service_role',
+    'public.create_invoice_payment_attempt(uuid,uuid,text,text)',
+    'execute'
+  ),
+  'service role can call the payment attempt RPC'
+);
+select ok(
+  not pg_catalog.has_function_privilege(
+    'anon',
+    'public.accept_project_agreement(uuid)',
+    'execute'
+  ),
+  'anonymous users cannot accept agreements'
+);
+select ok(
+  exists (
+    select 1 from pg_catalog.pg_constraint
+    where conrelid = 'public.invoices'::regclass
+      and conname = 'invoices_installment_pair_check'
+  ),
+  'invoice installment sequence and stage are constrained together'
+);
+
+select * from finish();
+rollback;

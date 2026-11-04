@@ -149,12 +149,7 @@ export async function getPublishedWorkProjects(): Promise<WorkProject[]> {
   const config = getSupabaseServerConfig();
   if (!config) return staticProjects;
 
-  try {
-    return mergePublicWorkProjects(await readStoredWorkProjects(config, 60));
-  } catch {
-    console.error("Using the built-in portfolio because Supabase work project data is unavailable.");
-    return staticProjects;
-  }
+  return mergePublicWorkProjects(await readStoredWorkProjects(config, 60));
 }
 
 export function validateWorkProjectDraft(value: unknown) {

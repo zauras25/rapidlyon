@@ -5,6 +5,7 @@ import { isSameOriginRequest } from "@/lib/discovery-auth";
 import { readBoundedJson } from "@/lib/request-body";
 import { checkRateLimit, rateLimitFailure } from "@/lib/rate-limit";
 import { getSupabaseServerConfig } from "@/lib/supabase-server";
+import { createPublicStatusUrl, sendReceiptEmail } from "@/lib/lead-receipts";
 
 export async function POST(request: Request) {
   if (!isSameOriginRequest(request)) {
@@ -60,16 +61,19 @@ export async function POST(request: Request) {
     );
   }
 
+  let receipt: {id:string; serial_no:string}|null=null;
+  let duplicate=false;
   try {
-    const response = await fetch(`${config.url}/rest/v1/inquiries`, {
+    const response = await fetch(`${config.url}/rest/v1/inquiries?on_conflict=submission_key`, {
       method: "POST",
       headers: {
         apikey: config.serviceRoleKey,
         Authorization: `Bearer ${config.serviceRoleKey}`,
         "Content-Type": "application/json",
-        Prefer: "return=minimal",
+        Prefer: "resolution=ignore-duplicates,return=representation",
       },
       body: JSON.stringify({
+        submission_key: parsed.data.idempotencyKey || crypto.randomUUID(),
         name: parsed.data.name,
         email: parsed.data.email,
         company: parsed.data.company || null,
@@ -79,6 +83,7 @@ export async function POST(request: Request) {
         timeline: parsed.data.timeline || null,
       }),
       cache: "no-store",
+      signal: AbortSignal.timeout(8000),
     });
 
     if (!response.ok) {
@@ -91,6 +96,18 @@ export async function POST(request: Request) {
         { status: 502 },
       );
     }
+    const rows = await response.json();
+    let row = Array.isArray(rows) ? rows[0] : null;
+    if (!row && parsed.data.idempotencyKey) {
+      duplicate=true;
+      const existing=await fetch(`${config.url}/rest/v1/inquiries?submission_key=eq.${parsed.data.idempotencyKey}&select=id,serial_no&limit=1`,{
+        headers:{apikey:config.serviceRoleKey,Authorization:`Bearer ${config.serviceRoleKey}`},cache:'no-store',signal:AbortSignal.timeout(7000),
+      });
+      if(existing.ok){const records=await existing.json();if(Array.isArray(records))row=records[0]||null;}
+    }
+    if (typeof row?.id === 'string' && typeof row?.serial_no === 'string') {
+      receipt={id:row.id,serial_no:row.serial_no};
+    } else console.error('Inquiry stored but the reference could not be read');
   } catch (error) {
     console.error("Supabase inquiry insert request failed.", error);
     return NextResponse.json(
@@ -102,11 +119,15 @@ export async function POST(request: Request) {
     );
   }
 
+  const statusUrl=receipt ? createPublicStatusUrl('qi',receipt.id) : null;
+  if (receipt && !duplicate) await sendReceiptEmail(parsed.data.email,receipt.serial_no,statusUrl,'inquiry');
   return NextResponse.json(
     {
       success: true,
-      message: "Your inquiry was saved successfully. We’ll follow up soon.",
+      reference: receipt?.serial_no ?? null,
+      statusUrl,
+      message: duplicate ? "This inquiry was already received. We’ll follow up by email." : "Your inquiry was received. We’ll review it and follow up by email. A project has not yet been accepted.",
     },
-    { status: 201 },
+    { status: duplicate ? 200 : 201 },
   );
 }

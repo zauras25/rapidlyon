@@ -30,7 +30,7 @@ const clientRecordPolicies = {
   },
   invoices: {
     states: "sent,viewed,pending,paid,overdue,cancelled,refunded",
-    fields: "id,client_id,project_id,proposal_id,agreement_id,invoice_number,status,issue_date,due_date,currency,subtotal,discount,tax,total,notes,payment_instructions,sent_at,viewed_at,paid_at,cancelled_at,created_at,updated_at",
+    fields: "id,client_id,project_id,proposal_id,agreement_id,installment_sequence,installment_stage,invoice_number,status,issue_date,due_date,currency,subtotal,discount,tax,total,notes,payment_instructions,sent_at,viewed_at,paid_at,cancelled_at,created_at,updated_at",
   },
 } as const;
 
