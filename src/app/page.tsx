@@ -8,6 +8,8 @@ import { PublicShell } from '@/components/site/chrome';
 import { processSteps } from '@/data/site';
 import { getPublishedWorkProjects } from '@/lib/work-project-storage';
 
+export const metadata = { alternates: { canonical: '/' } };
+
 function HomeWorkFallback() {
   return <section className="section" id="work"><div className="shell"><SectionHeader eyebrow="02 / Selected work" title="See how ideas become interfaces." intro="Explore published case studies, with concept and personal projects clearly identified." action={{label:'View all projects',href:'/work'}}/><div className="work-empty-state"><div><p className="eyebrow">Work in progress</p><h3>Our case studies are in progress.</h3><p>We are documenting the thinking, decisions, and outcomes behind our work. Until the full studies are published, see what we offer or tell us about your project.</p></div><div className="work-empty-actions"><Link className="btn btn-dark" href="/discovery">Discuss your project <ArrowUpRight size={18}/></Link><Link className="btn btn-outline" href="/services">Explore services <ArrowRight size={18}/></Link></div></div></div></section>;
 }

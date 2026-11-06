@@ -8,5 +8,5 @@ let failures=0;
 for(const [n,v] of vars){if(!css.includes(`--${n}:`)){console.error('Missing CSS token',n);failures++;}const match=String(v.$value).match(/^var\((--[\w-]+)\)$/);if(match&&!css.includes(match[1]+':')){console.error('Unresolved alias',n,match[1]);failures++;}}
 for(const p of ['figma-variables-light.csv','figma-component-inventory.csv','figma-variables-dark-overrides.csv']){if(!fs.existsSync(path.join(base,'figma-handoff',p)))failures++;}
 console.log(`Figma handoff: ${vars.length} live tokens; ${failures} failures.`);
-console.warn('NOTE: src/design-tokens.json is legacy and not canonical. CSS hardcodes and interaction states require manual audit.');
+console.warn('NOTE: the legacy src/design-tokens.json was removed; src/design-system/tokens.css is the single source of truth. CSS hardcodes and interaction states require manual audit.');
 process.exitCode=failures?1:0;

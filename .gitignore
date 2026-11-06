@@ -35,6 +35,7 @@ yarn-error.log*
 .env.local.backup*
 .env.local.*
 !.env.example
+!.env.*.example
 
 # vercel
 .vercel
@@ -56,3 +57,6 @@ node_modules/
 
 # Browser QA captures may include private session cookies and client data
 /qa-artifacts/
+!.env.*.example
+*.bak
+*.bak-*

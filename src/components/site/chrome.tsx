@@ -20,26 +20,30 @@ export function Header() {
 
 function HeaderPathname() {
   const pathname = usePathname();
-  return <HeaderContent key={pathname} pathname={pathname} />;
+  return <HeaderContent pathname={pathname} />;
 }
 
 function HeaderContent({ pathname }: { pathname: string }) {
-  const [open, setOpen] = useState(false);
+  // Menu state is tied to the route it was opened on, so navigating closes it
+  // without remounting the header or setting state inside an effect.
+  const [openPath, setOpenPath] = useState<string | null>(null);
+  const open = openPath === pathname;
+  const setOpen = (next: boolean) => setOpenPath(next ? pathname : null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   useEffect(() => { document.body.classList.toggle('mobile-nav-open', open); return () => document.body.classList.remove('mobile-nav-open'); }, [open]);
-  useEffect(() => { if (!open) return; const closeOnEscape = (event: KeyboardEvent) => { if (event.key === 'Escape') { setOpen(false); menuButtonRef.current?.focus(); } }; document.addEventListener('keydown', closeOnEscape); return () => document.removeEventListener('keydown', closeOnEscape); }, [open]);
+  useEffect(() => { if (!open) return; const closeOnEscape = (event: KeyboardEvent) => { if (event.key === 'Escape') { setOpenPath(null); menuButtonRef.current?.focus(); } }; document.addEventListener('keydown', closeOnEscape); return () => document.removeEventListener('keydown', closeOnEscape); }, [open]);
   return <header className="site-header"><div className="shell site-nav">
     <Brand />
     <nav className="nav-links" aria-label="Main navigation">
       {siteConfig.navigation.map(item => <Link key={item.href} href={item.href} aria-current={pathname === item.href ? 'page' : undefined} className={'nav-link' + (pathname === item.href ? ' active' : '')}>{item.label}</Link>)}
     </nav>
-    <div className="nav-actions"><Link href="/client/login" className="nav-link nav-user-link" aria-label="Login">Login</Link><Link href="/client/sign-up" className="nav-link" aria-label="Register">Register</Link><Link href="/discovery" className="btn btn-dark btn-sm">Start a project <ArrowUpRight size={16}/></Link></div>
+    <div className="nav-actions"><Link href="/client/login" className="nav-link nav-user-link">Log in</Link><Link href="/client/sign-up" className="nav-link">Sign up</Link><Link href="/discovery" className="btn btn-dark btn-sm">Start a project <ArrowUpRight size={16}/></Link></div>
     <button ref={menuButtonRef} className="mobile-menu-button" aria-controls="rapidlyon-mobile-navigation" type="button" aria-label={open ? 'Close menu' : 'Open menu'} aria-expanded={open} onClick={() => setOpen(!open)}>{open ? <X size={25} /> : <Menu size={25} />}</button>
   </div>
   <nav id="rapidlyon-mobile-navigation" className={'mobile-menu' + (open ? ' open' : '')} aria-label="Mobile navigation" inert={!open} aria-hidden={!open}>
     {siteConfig.navigation.map(item => <Link onClick={() => setOpen(false)} key={item.href} href={item.href} aria-current={pathname === item.href ? 'page' : undefined}>{item.label}</Link>)}
-    <Link onClick={() => setOpen(false)} href="/client/login">Login</Link>
-    <Link onClick={() => setOpen(false)} href="/client/sign-up">Register</Link>
+    <Link onClick={() => setOpen(false)} href="/client/login">Log in</Link>
+    <Link onClick={() => setOpen(false)} href="/client/sign-up">Sign up</Link>
     <Link onClick={() => setOpen(false)} href="/discovery" className="btn btn-dark">Start a project <ArrowUpRight size={16}/></Link>
   </nav></header>;
 }
@@ -100,10 +104,11 @@ const footerGroups = [
   { title:'Services', items:[['Product design','/services/ux-ui-design'],['Next.js development','/services/nextjs-development'],['SEO & optimization','/services/seo-website-optimization'],['Pricing','/pricing']] },
   { title:'Connect', items:[['Start a project','/discovery'],['Quick inquiry','/contact'],['Client workspace','/client/login'],['Frequently asked','/faq']] },
 ];
+const COPYRIGHT_YEAR = new Date().getFullYear(); // evaluated once at build/start, not during render
 function FooterCopyrightYear() {
   // The year changes infrequently. Allow the client to display its local year
   // without causing a hydration error near the New Year timezone boundary.
-  return <span suppressHydrationWarning>2026</span>;
+  return <span>{COPYRIGHT_YEAR}</span>;
 }
 
 export function Footer() {

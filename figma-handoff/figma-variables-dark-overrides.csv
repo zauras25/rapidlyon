@@ -10,3 +10,6 @@ Semantic/Color,color/brand/hover,--color-brand-hover,#d0f69b,dark
 Semantic/Color,color/brand/soft,--color-brand-soft,#394d2a,dark
 Component,button/primary/bg,--button-primary-bg,#a9df44,dark
 Component,button/primary/text,--button-primary-text,#1e2a17,dark
+Semantic/Color,color/focus,--color-focus,#b9eb62,dark
+Semantic/Color,color/danger,--color-danger,#f0a39a,dark
+Semantic/Color,color/warning,--color-warning,#e3b676,dark

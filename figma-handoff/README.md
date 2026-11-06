@@ -4,7 +4,7 @@
 **Ready to START a Figma component library; not yet a pixel-perfect approved Figma master.** Based on the latest Pass 5 source. The live site reads `src/styles/globals.css` which imports `src/design-system/tokens.css`. That CSS is the source of truth used in these exports.
 
 ## Known conflict fixed for the handoff
-`src/design-tokens.json` is **legacy / not canonical** (Manrope + forest green). The active site uses **Outfit + DM Sans** with charcoal / lime / cream variables. **Use `canonical-live-tokens.json` and the CSV exports, NOT the old JSON.** Existing legacy JSON is retained for compatibility with older scripts.
+`src/design-tokens.json` (now **removed**; it was legacy / not canonical) (Manrope + forest green). The active site uses **Outfit + DM Sans** with charcoal / lime / cream variables. **Use `canonical-live-tokens.json` and the CSV exports, NOT the old JSON.** Existing legacy JSON is retained for compatibility with older scripts.
 
 ## Files
 - `figma-variables-light.csv`: extracted root variables with aliases and grouping; some formulas/values require manual interpretation in Figma.

@@ -1,15 +1,13 @@
-RAPIDLYON STUDIO OS — ADMIN OPERATIONS REDESIGN
+RapidlyOn Admin Discovery UI repair
 
-1. BACK UP your existing project or commit changes to Git.
-2. Copy the src folder from this ZIP into your project root, allowing these four files to be overwritten:
-   src/app/globals.css
-   src/app/studio-os.css (new)
-   src/components/admin/admin-operations.tsx
-   src/components/ui/site-chrome.tsx
-3. From your project root run: npm install (if dependencies are not installed), then npm run dev.
-4. Visit http://localhost:3000/admin/operations and sign in as admin.
+Changes:
+1. Original client answers displayed in readable sections with human labels, without empty technical fields.
+2. Custom questions shown as responsive full-width editable textareas, with clear per-question Remove controls.
+3. Email send failure requires runtime provider configuration; no credentials are in this package.
 
-Uses your existing /api/admin/operations and authentication. No database migrations or environment changes are needed.
-The redesigned page is /admin/operations. Existing project-detail pages and other admin pages retain their previous UI.
+Install: make a Git commit or backup first; overlay the src/ folder into your RapidlyOn project root.
+Run: npx tsc --noEmit; npm run lint; npm run build
 
-IMPORTANT: This is a source-code redesign. A complete build was not run in this environment because node_modules was absent from the uploaded archive. Verify with npm run build locally.
+Email: configure RESEND_API_KEY, DISCOVERY_NOTIFICATION_FROM, NEXT_PUBLIC_SITE_URL in .env.local (local development) or deployment environment. The sender domain must be verified by Resend. Restart Next.js server after updating environment variables. NEVER commit .env.local or paste secrets into chat.
+
+Verification: static source checks passed here; full Next.js build and email delivery not executed.

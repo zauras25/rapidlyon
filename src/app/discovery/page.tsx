@@ -1,4 +1,4 @@
 import { PublicShell } from '@/components/site/chrome';
-import { DiscoveryPage } from '@/components/site/public-pages';
+import { GuidedDiscovery } from '@/components/forms/guided-discovery';
 export const metadata = { title: 'Discovery' };
-export default function Page() { return <PublicShell><DiscoveryPage/></PublicShell>; }
+export default function Page(){return <PublicShell><main><GuidedDiscovery/></main></PublicShell>}

@@ -192,7 +192,7 @@
       }
     },
     "color-text-muted": {
-      "$value": "var(--primitive-ink-500)",
+      "$value": "#596459",
       "$type": "string",
       "$extensions": {
         "rapidlyon": {
@@ -212,7 +212,7 @@
       }
     },
     "color-brand": {
-      "$value": "#648e20",
+      "$value": "#4a7016",
       "$type": "color",
       "$extensions": {
         "rapidlyon": {
@@ -222,7 +222,7 @@
       }
     },
     "color-brand-deep": {
-      "$value": "#416315",
+      "$value": "#345512",
       "$type": "color",
       "$extensions": {
         "rapidlyon": {
@@ -232,7 +232,7 @@
       }
     },
     "color-brand-light": {
-      "$value": "#779f30",
+      "$value": "#5f8a1f",
       "$type": "color",
       "$extensions": {
         "rapidlyon": {
@@ -272,7 +272,7 @@
       }
     },
     "color-brand-hover": {
-      "$value": "#4f7515",
+      "$value": "#3d5c10",
       "$type": "color",
       "$extensions": {
         "rapidlyon": {
@@ -302,7 +302,7 @@
       }
     },
     "color-danger": {
-      "$value": "var(--primitive-red-600)",
+      "$value": "#a8443a",
       "$type": "string",
       "$extensions": {
         "rapidlyon": {
@@ -312,7 +312,7 @@
       }
     },
     "color-focus": {
-      "$value": "#83bd27",
+      "$value": "#4a7016",
       "$type": "color",
       "$extensions": {
         "rapidlyon": {
@@ -322,7 +322,7 @@
       }
     },
     "font-display": {
-      "$value": "'Outfit', 'Trebuchet MS', sans-serif",
+      "$value": "var(--font-outfit), 'Outfit', 'Trebuchet MS', system-ui, sans-serif",
       "$type": "string",
       "$extensions": {
         "rapidlyon": {
@@ -332,7 +332,7 @@
       }
     },
     "font-body": {
-      "$value": "'DM Sans', 'Segoe UI', sans-serif",
+      "$value": "var(--font-dm-sans), 'DM Sans', 'Segoe UI', system-ui, sans-serif",
       "$type": "string",
       "$extensions": {
         "rapidlyon": {
@@ -342,7 +342,7 @@
       }
     },
     "text-h1": {
-      "$value": "clamp(3.55rem, 7vw, 7.25rem)",
+      "$value": "clamp(2.6rem, 6.2vw, 6rem)",
       "$type": "string",
       "$extensions": {
         "rapidlyon": {
@@ -352,7 +352,7 @@
       }
     },
     "text-h2": {
-      "$value": "clamp(2.7rem, 5vw, 5.2rem)",
+      "$value": "clamp(2.1rem, 4.4vw, 4.2rem)",
       "$type": "string",
       "$extensions": {
         "rapidlyon": {
@@ -362,7 +362,7 @@
       }
     },
     "text-h3": {
-      "$value": "clamp(2rem, 3.1vw, 3.35rem)",
+      "$value": "clamp(1.65rem, 2.8vw, 2.8rem)",
       "$type": "string",
       "$extensions": {
         "rapidlyon": {
@@ -848,6 +848,16 @@
         "rapidlyon": {
           "cssVariable": "--input-border",
           "group": "Component"
+        }
+      }
+    },
+    "color-warning": {
+      "$value": "#8c5920",
+      "$type": "color",
+      "$extensions": {
+        "rapidlyon": {
+          "cssVariable": "--color-warning",
+          "group": "Semantic"
         }
       }
     }

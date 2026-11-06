@@ -19,24 +19,25 @@
   --color-surface: var(--primitive-white);
   --color-surface-alt: var(--primitive-cream-100);
   --color-text: var(--primitive-ink-950);
-  --color-text-muted: var(--primitive-ink-500);
+  --color-text-muted: #596459; /* AA: 5.9:1 on bg, 5.6:1 on surface-alt (was 4.4:1) */
   --color-border: #dfe5d6;
-  --color-brand: #648e20;
-  --color-brand-deep: #416315;
-  --color-brand-light: #779f30;
+  --color-brand: #4a7016; /* AA text + white-on-brand: 5.8:1 (was 3.7–3.9:1) */
+  --color-brand-deep: #345512;
+  --color-brand-light: #5f8a1f;
   --color-on-brand: #ffffff;
   --section-spacing: clamp(48px, 6vw, 88px);
   --section-spacing-mobile: 40px;
-  --color-brand-hover: #4f7515;
+  --color-brand-hover: #3d5c10;
   --color-brand-soft: var(--primitive-lime-100);
   --color-lime: var(--primitive-lime-500);
-  --color-danger: var(--primitive-red-600);
-  --color-focus: #83bd27;
-  --font-display: 'Outfit', 'Trebuchet MS', sans-serif;
-  --font-body: 'DM Sans', 'Segoe UI', sans-serif;
-  --text-h1: clamp(3.55rem, 7vw, 7.25rem);
-  --text-h2: clamp(2.7rem, 5vw, 5.2rem);
-  --text-h3: clamp(2rem, 3.1vw, 3.35rem);
+  --color-danger: #a8443a; /* AA 5.7:1 (was 4.4:1) */
+  --color-warning: #8c5920; /* AA 5.6:1 (was 4.2:1) */
+  --color-focus: #4a7016; /* >=3:1 non-text contrast on every light surface (was 2.2:1) */
+  --font-display: var(--font-outfit), 'Outfit', 'Trebuchet MS', system-ui, sans-serif;
+  --font-body: var(--font-dm-sans), 'DM Sans', 'Segoe UI', system-ui, sans-serif;
+  --text-h1: clamp(2.6rem, 6.2vw, 6rem);
+  --text-h2: clamp(2.1rem, 4.4vw, 4.2rem);
+  --text-h3: clamp(1.65rem, 2.8vw, 2.8rem);
   --text-h4: clamp(1.5rem, 2.15vw, 2.15rem);
   --text-h5: 1.3rem;
   --text-h6: 1.05rem;
@@ -75,7 +76,7 @@
   color-scheme: dark;
   --color-bg: #1b241b; --color-surface: #263127; --color-surface-alt: #303d30;
   --color-text: #f5f7ee; --color-text-muted: #b7c4b1; --color-border: #435044;
-  --color-brand: #b9eb62; --color-brand-hover: #d0f69b; --color-brand-soft: #394d2a;
+  --color-brand: #b9eb62; --color-brand-hover: #d0f69b; --color-brand-soft: #394d2a; --color-focus: #b9eb62; --color-danger: #f0a39a; --color-warning: #e3b676;
   --button-primary-bg: #a9df44; --button-primary-text: #1e2a17;
 }
 

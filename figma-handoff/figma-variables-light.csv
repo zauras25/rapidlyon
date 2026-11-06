@@ -18,24 +18,25 @@ Semantic/Color,color/bg,--color-bg,var(--primitive-cream-50),STRING,--primitive-
 Semantic/Color,color/surface,--color-surface,var(--primitive-white),STRING,--primitive-white,light
 Semantic/Color,color/surface/alt,--color-surface-alt,var(--primitive-cream-100),STRING,--primitive-cream-100,light
 Semantic/Color,color/text,--color-text,var(--primitive-ink-950),STRING,--primitive-ink-950,light
-Semantic/Color,color/text/muted,--color-text-muted,var(--primitive-ink-500),STRING,--primitive-ink-500,light
+Semantic/Color,color/text/muted,--color-text-muted,#596459,COLOR,,light
 Semantic/Color,color/border,--color-border,#dfe5d6,COLOR,,light
-Semantic/Color,color/brand,--color-brand,#648e20,COLOR,,light
-Semantic/Color,color/brand/deep,--color-brand-deep,#416315,COLOR,,light
-Semantic/Color,color/brand/light,--color-brand-light,#779f30,COLOR,,light
+Semantic/Color,color/brand,--color-brand,#4a7016,COLOR,,light
+Semantic/Color,color/brand/deep,--color-brand-deep,#345512,COLOR,,light
+Semantic/Color,color/brand/light,--color-brand-light,#5f8a1f,COLOR,,light
 Semantic/Color,color/on/brand,--color-on-brand,#ffffff,COLOR,,light
 Layout/Other,section/spacing,--section-spacing,"clamp(48px, 6vw, 88px)",STRING,,light
 Layout/Other,section/spacing/mobile,--section-spacing-mobile,40px,FLOAT,,light
-Semantic/Color,color/brand/hover,--color-brand-hover,#4f7515,COLOR,,light
+Semantic/Color,color/brand/hover,--color-brand-hover,#3d5c10,COLOR,,light
 Semantic/Color,color/brand/soft,--color-brand-soft,var(--primitive-lime-100),STRING,--primitive-lime-100,light
 Semantic/Color,color/lime,--color-lime,var(--primitive-lime-500),STRING,--primitive-lime-500,light
-Semantic/Color,color/danger,--color-danger,var(--primitive-red-600),STRING,--primitive-red-600,light
-Semantic/Color,color/focus,--color-focus,#83bd27,COLOR,,light
-Typography,font/display,--font-display,"'Outfit', 'Trebuchet MS', sans-serif",STRING,,light
-Typography,font/body,--font-body,"'DM Sans', 'Segoe UI', sans-serif",STRING,,light
-Typography,text/h1,--text-h1,"clamp(3.55rem, 7vw, 7.25rem)",STRING,,light
-Typography,text/h2,--text-h2,"clamp(2.7rem, 5vw, 5.2rem)",STRING,,light
-Typography,text/h3,--text-h3,"clamp(2rem, 3.1vw, 3.35rem)",STRING,,light
+Semantic/Color,color/danger,--color-danger,#a8443a,COLOR,,light
+Semantic/Color,color/warning,--color-warning,#8c5920,COLOR,,light
+Semantic/Color,color/focus,--color-focus,#4a7016,COLOR,,light
+Typography,font/display,--font-display,var(--font-outfit), 'Outfit', 'Trebuchet MS', system-ui, sans-serif, 'Trebuchet MS', sans-serif",STRING,,light
+Typography,font/body,--font-body,var(--font-dm-sans), 'DM Sans', 'Segoe UI', system-ui, sans-serif, 'Segoe UI', sans-serif",STRING,,light
+Typography,text/h1,--text-h1,clamp(2.6rem, 6.2vw, 6rem), 7vw, 7.25rem)",STRING,,light
+Typography,text/h2,--text-h2,clamp(2.1rem, 4.4vw, 4.2rem), 5vw, 5.2rem)",STRING,,light
+Typography,text/h3,--text-h3,clamp(1.65rem, 2.8vw, 2.8rem), 3.1vw, 3.35rem)",STRING,,light
 Typography,text/h4,--text-h4,"clamp(1.5rem, 2.15vw, 2.15rem)",STRING,,light
 Typography,text/h5,--text-h5,1.3rem,STRING,,light
 Typography,text/h6,--text-h6,1.05rem,STRING,,light

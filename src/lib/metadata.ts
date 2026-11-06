@@ -21,7 +21,7 @@ export function createPageMetadata(
       type: "website",
     },
     twitter: {
-      card: "summary_large_image",
+      card: "summary",
       title: pageTitle,
       description,
     },
