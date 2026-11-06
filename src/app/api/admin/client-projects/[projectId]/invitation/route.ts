@@ -10,7 +10,7 @@ import { discoveryEmailConfigured, sendDiscoveryEmail } from "@/lib/discovery-em
 
 const projectIdSchema = z.string().uuid();
 
-const emailSchema = z.string().trim().email().max(320);
+
 
 const projectSchema = z.object({
   id: z.string().uuid(),
@@ -96,7 +96,7 @@ async function sendInvitationEmail(
   }
   const ok = await sendDiscoveryEmail({
     to: client.email,
-    subject: `Your RapidlyOn project invitation — ${project.name}`,
+    subject: `Your RapidlyOn project invitation â€” ${project.name}`,
     text: createInvitationText(client.name, project.name, invitationUrl, expiresAt),
     reference: `client-invitation-${project.id}-${hashToken(invitationUrl)}`,
   });
