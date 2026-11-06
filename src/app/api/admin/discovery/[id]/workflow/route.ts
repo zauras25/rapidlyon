@@ -7,6 +7,7 @@ import { readBoundedJson } from '@/lib/request-body';
 import { checkRateLimit, rateLimitFailure } from '@/lib/rate-limit';
 import { createLeadToken } from '@/lib/lead-links';
 import { siteConfig } from '@/data/site';
+import { discoveryEmailConfigured, sendDiscoveryEmail } from '@/lib/discovery-email-transport';
 
 const idSchema = z.string().uuid();
 const methods = ['whatsapp','voice','video','moderated','unmoderated'] as const;
@@ -88,9 +89,7 @@ export async function POST(request:Request,{params}:Context) {
   if(!config) return NextResponse.json({message:'Discovery storage is not configured.'},{status:503});
 
   const siteUrl=process.env.NEXT_PUBLIC_SITE_URL?.trim()||siteConfig.url;
-  const apiKey=process.env.RESEND_API_KEY?.trim();
-  const from=process.env.DISCOVERY_NOTIFICATION_FROM?.trim()||process.env.INQUIRY_REPLY_FROM?.trim();
-  if(!apiKey||!from) return NextResponse.json({message:'Client email is not configured. Set the sender and email-provider credentials before sending.'},{status:503});
+  if(!discoveryEmailConfigured()) return NextResponse.json({message:'Client email is not configured. Configure Hostinger SMTP credentials and the sender address.'},{status:503});
   let origin:URL;
   try {
     origin=new URL(siteUrl);
@@ -130,15 +129,10 @@ export async function POST(request:Request,{params}:Context) {
       '',
       'RapidlyOn',
     ].join('\n');
-    const send=await fetch('https://api.resend.com/emails',{
-      method:'POST',
-      headers:{Authorization:`Bearer ${apiKey}`,'Content-Type':'application/json','Idempotency-Key':String(invitationId)},
-      body:JSON.stringify({from,to:[email],subject:'A few questions about your RapidlyOn project request',text:body}),
-      cache:'no-store',signal:AbortSignal.timeout(12000),
-    }).catch(()=>null);
-    const delivery=send?.ok?'sent':'failed';
+    const accepted=await sendDiscoveryEmail({to:email,subject:'A few questions about your RapidlyOn project request',text:body,reference:String(invitationId)});
+    const delivery=accepted?'sent':'failed';
     await callDiscoveryWorkflowRpc(config,'set_discovery_clarification_delivery',{p_invitation_id:invitationId,p_delivery_status:delivery});
-    if(!send?.ok) return NextResponse.json({message:'The invitation was saved, but the email provider did not accept it. You can prepare a new invitation after checking email settings.'},{status:502});
+    if(!accepted) return NextResponse.json({message:'The invitation was saved, but the email provider did not accept it. Check Hostinger SMTP configuration and logs.'},{status:502});
     return NextResponse.json({success:true,message:'Clarification invitation accepted by the email provider. Delivery is not yet confirmed.',invitationId,status:'sent',expiresAt},{status:201});
   } catch(error) {
     console.error('Discovery clarification invitation failed.',error);
@@ -195,9 +189,7 @@ export async function PATCH(request:Request,{params}:Context) {
       const email=typeof parents[0]?.email==='string'?parents[0].email:'';
       const recipientName=typeof parents[0]?.full_name==='string'?parents[0].full_name:'there';
       if(!email) return NextResponse.json({message:'This Discovery request has no client email address.'},{status:409});
-      const apiKey=process.env.RESEND_API_KEY?.trim();
-      const from=process.env.DISCOVERY_NOTIFICATION_FROM?.trim()||process.env.INQUIRY_REPLY_FROM?.trim();
-      if(!apiKey||!from) return NextResponse.json({message:'Client email is not configured.'},{status:503});
+      if(!discoveryEmailConfigured()) return NextResponse.json({message:'Client email is not configured.'},{status:503});
       const token=createLeadToken('qd',id,30*24*60*60);
       if(!token) return NextResponse.json({message:'Secure client links are not configured.'},{status:503});
       const expiresAt=new Date(Date.now()+30*24*60*60*1000).toISOString();
@@ -206,12 +198,8 @@ export async function PATCH(request:Request,{params}:Context) {
       await callDiscoveryWorkflowRpc(config,'request_discovery_session_confirmation_with_link',{
         p_discovery_id:id,p_session_id:action.sessionId,p_token_hash:hashDiscoveryWorkflowToken(token),p_expires_at:expiresAt,
       });
-      const send=await fetch('https://api.resend.com/emails',{
-        method:'POST',headers:{Authorization:`Bearer ${apiKey}`,'Content-Type':'application/json','Idempotency-Key':crypto.randomUUID()},
-        body:JSON.stringify({from,to:[email],subject:'Please confirm your RapidlyOn project conversation',text:`Hello ${recipientName},\n\nWe prepared a session plan for your project. Please review and confirm it, or request a new time using your private link:\n${link.toString()}\n\nThis confirmation does not approve a project or create a payment obligation.\n\nRapidlyOn`}),
-        cache:'no-store',signal:AbortSignal.timeout(12000),
-      }).catch(()=>null);
-      if(!send?.ok) return NextResponse.json({message:'The plan was saved, but the email provider did not accept the confirmation email.'},{status:502});
+      const accepted=await sendDiscoveryEmail({to:email,subject:'Please confirm your RapidlyOn project conversation',text:`Hello ${recipientName},\n\nWe prepared a session plan for your project. Please review and confirm it, or request a new time using your private link:\n${link.toString()}\n\nThis confirmation does not approve a project or create a payment obligation.\n\nRapidlyOn`});
+      if(!accepted) return NextResponse.json({message:'The plan was saved, but the email provider did not accept the confirmation email.'},{status:502});
     }
     return NextResponse.json({success:true,message:'Discovery workflow updated.'});
   } catch(error) {
