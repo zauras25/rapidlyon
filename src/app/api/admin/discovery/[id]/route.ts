@@ -37,7 +37,7 @@ export async function GET(_request: Request, { params }: RouteContext) {
 
   try {
     const response = await fetch(
-      `${config.url}/rest/v1/discovery_submissions?id=eq.${id}&select=id,serial_no,source_inquiry_id,full_name,email,company,services,discovery_method,status,created_at,submission,attachment_paths,internal_notes,next_action,follow_up_at,notification_status,notification_updated_at,qualification_status,client_id,client_project_id`,
+      `${config.url}/rest/v1/discovery_submissions?id=eq.${id}&select=id,serial_no,source_inquiry_id,full_name,email,company,services,discovery_method,status,created_at,submission,attachment_paths,internal_notes,next_action,follow_up_at,notification_status,notification_updated_at,qualification_status,client_id,client_project_id,scope_readiness_status,scope_readiness_reason,scope_readiness_updated_at`,
       {
         headers: {
           apikey: config.serviceRoleKey,

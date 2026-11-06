@@ -1,0 +1,133 @@
+group,route,viewport,width,status,finalPath,authRedirect,screenshot,issue
+public,/,mobile,390,200,/,False,public-mobile-home.png,
+public,/about,mobile,390,200,/about,False,public-mobile-about.png,
+public,/services,mobile,390,200,/services,False,public-mobile-services.png,
+public,/services/ux-ui-design,mobile,390,200,/services/ux-ui-design,False,public-mobile-services-ux-ui-design.png,
+public,/services/nextjs-development,mobile,390,200,/services/nextjs-development,False,public-mobile-services-nextjs-development.png,
+public,/services/seo-website-optimization,mobile,390,200,/services/seo-website-optimization,False,public-mobile-services-seo-website-optimization.png,
+public,/pricing,mobile,390,200,/pricing,False,public-mobile-pricing.png,
+public,/process,mobile,390,200,/process,False,public-mobile-process.png,
+public,/work,mobile,390,200,/work,False,public-mobile-work.png,
+public,/work/umer-mobile-parts,mobile,390,200,/work/umer-mobile-parts,False,public-mobile-work-umer-mobile-parts.png,
+public,/work/trailmix-local-discovery-concept,mobile,390,200,/work/trailmix-local-discovery-concept,False,public-mobile-work-trailmix-local-discovery-concept.png,
+public,/contact,mobile,390,200,/contact,False,public-mobile-contact.png,
+public,/discovery,mobile,390,200,/discovery,False,public-mobile-discovery.png,
+public,/faq,mobile,390,200,/faq,False,public-mobile-faq.png,
+public,/insights,mobile,390,200,/insights,False,public-mobile-insights.png,
+public,/insights/clarity-before-complexity,mobile,390,200,/insights/clarity-before-complexity,False,public-mobile-insights-clarity-before-complexity.png,
+public,/insights/websites-that-convert-without-feeling-salesy,mobile,390,200,/insights/websites-that-convert-without-feeling-salesy,False,public-mobile-insights-websites-that-convert-without-feeling-salesy.png,
+public,/insights/designing-for-mvp-clarity,mobile,390,200,/insights/designing-for-mvp-clarity,False,public-mobile-insights-designing-for-mvp-clarity.png,
+public,/privacy,mobile,390,200,/privacy,False,public-mobile-privacy.png,
+public,/terms,mobile,390,200,/terms,False,public-mobile-terms.png,
+client,/client,mobile,390,200,/client,False,client-mobile-client.png,
+client,/client/login,mobile,390,200,/client/login,False,client-mobile-client-login.png,
+client,/client/forgot-password,mobile,390,200,/client/forgot-password,False,client-mobile-client-forgot-password.png,
+client,/client/reset-password,mobile,390,200,/client/reset-password,False,client-mobile-client-reset-password.png,
+client,/client/billing,mobile,390,200,/client/billing,False,client-mobile-client-billing.png,
+client,/client/invitations/accept,mobile,390,200,/client/invitations/accept,False,client-mobile-client-invitations-accept.png,
+admin,/admin,mobile,390,200,/admin,False,admin-mobile-admin.png,
+admin,/admin/discovery/login,mobile,390,200,/admin/discovery/login,False,admin-mobile-admin-discovery-login.png,
+admin,/admin/operations,mobile,390,200,/admin/operations,False,admin-mobile-admin-operations.png,"page.evaluate: Execution context was destroyed, most likely because of a navigation"
+admin,/admin/inquiries,mobile,390,200,/admin/discovery/login,True,admin-mobile-admin-inquiries.png,
+admin,/admin/discovery,mobile,390,200,/admin/discovery,False,admin-mobile-admin-discovery.png,"page.evaluate: Execution context was destroyed, most likely because of a navigation"
+admin,/admin/clients,mobile,390,200,/admin/clients,False,admin-mobile-admin-clients.png,"page.evaluate: Execution context was destroyed, most likely because of a navigation"
+admin,/admin/billing,mobile,390,200,/admin/discovery/login,True,admin-mobile-admin-billing.png,"page.evaluate: TypeError: Cannot read properties of null (reading 'scrollWidth')
+    at eval (eval at evaluate (:370:30), <anonymous>:4:366)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at U"
+admin,/admin/projects,mobile,390,200,/admin/projects,False,admin-mobile-admin-projects.png,"page.evaluate: Execution context was destroyed, most likely because of a navigation"
+admin,/admin/projects/development,mobile,390,200,/admin/projects/development,False,admin-mobile-admin-projects-development.png,"page.evaluate: Execution context was destroyed, most likely because of a navigation"
+admin,/admin/projects/product-design,mobile,390,200,/admin/projects/product-design,False,admin-mobile-admin-projects-product-design.png,"page.evaluate: Execution context was destroyed, most likely because of a navigation"
+admin,/admin/projects/seo,mobile,390,200,/admin/discovery/login,True,admin-mobile-admin-projects-seo.png,"page.evaluate: TypeError: Cannot read properties of null (reading 'scrollWidth')
+    at eval (eval at evaluate (:370:30), <anonymous>:4:366)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at U"
+admin,/admin/reviews,mobile,390,200,/admin/reviews,False,admin-mobile-admin-reviews.png,"page.evaluate: Execution context was destroyed, most likely because of a navigation"
+admin,/admin/reviews/login,mobile,390,200,/admin/reviews/login,False,admin-mobile-admin-reviews-login.png,
+admin,/admin/records,mobile,390,200,/admin/discovery/login,True,admin-mobile-admin-records.png,"page.evaluate: TypeError: Cannot read properties of null (reading 'scrollWidth')
+    at eval (eval at evaluate (:370:30), <anonymous>:4:366)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at U"
+public,/,tablet,768,200,/,False,public-tablet-home.png,
+public,/about,tablet,768,200,/about,False,public-tablet-about.png,
+public,/services,tablet,768,200,/services,False,public-tablet-services.png,
+public,/services/ux-ui-design,tablet,768,200,/services/ux-ui-design,False,public-tablet-services-ux-ui-design.png,
+public,/services/nextjs-development,tablet,768,200,/services/nextjs-development,False,public-tablet-services-nextjs-development.png,
+public,/services/seo-website-optimization,tablet,768,200,/services/seo-website-optimization,False,public-tablet-services-seo-website-optimization.png,
+public,/pricing,tablet,768,200,/pricing,False,public-tablet-pricing.png,
+public,/process,tablet,768,200,/process,False,public-tablet-process.png,
+public,/work,tablet,768,200,/work,False,public-tablet-work.png,
+public,/work/umer-mobile-parts,tablet,768,200,/work/umer-mobile-parts,False,public-tablet-work-umer-mobile-parts.png,
+public,/work/trailmix-local-discovery-concept,tablet,768,200,/work/trailmix-local-discovery-concept,False,public-tablet-work-trailmix-local-discovery-concept.png,
+public,/contact,tablet,768,200,/contact,False,public-tablet-contact.png,
+public,/discovery,tablet,768,200,/discovery,False,public-tablet-discovery.png,
+public,/faq,tablet,768,200,/faq,False,public-tablet-faq.png,
+public,/insights,tablet,768,200,/insights,False,public-tablet-insights.png,
+public,/insights/clarity-before-complexity,tablet,768,200,/insights/clarity-before-complexity,False,public-tablet-insights-clarity-before-complexity.png,
+public,/insights/websites-that-convert-without-feeling-salesy,tablet,768,200,/insights/websites-that-convert-without-feeling-salesy,False,public-tablet-insights-websites-that-convert-without-feeling-salesy.png,
+public,/insights/designing-for-mvp-clarity,tablet,768,200,/insights/designing-for-mvp-clarity,False,public-tablet-insights-designing-for-mvp-clarity.png,
+public,/privacy,tablet,768,200,/privacy,False,public-tablet-privacy.png,
+public,/terms,tablet,768,200,/terms,False,public-tablet-terms.png,
+client,/client,tablet,768,200,/client,False,client-tablet-client.png,
+client,/client/login,tablet,768,200,/client/login,False,client-tablet-client-login.png,
+client,/client/forgot-password,tablet,768,200,/client/forgot-password,False,client-tablet-client-forgot-password.png,
+client,/client/reset-password,tablet,768,200,/client/reset-password,False,client-tablet-client-reset-password.png,
+client,/client/billing,tablet,768,200,/client/login,True,client-tablet-client-billing.png,
+client,/client/invitations/accept,tablet,768,200,/client/invitations/accept,False,client-tablet-client-invitations-accept.png,
+admin,/admin,tablet,768,200,/admin,False,admin-tablet-admin.png,"page.evaluate: Execution context was destroyed, most likely because of a navigation"
+admin,/admin/discovery/login,tablet,768,None,/admin/operations,False,None,"page.goto: net::ERR_ABORTED at http://localhost:3000/admin/discovery/login
+Call log:
+[2m  - navigating to ""http://localhost:3000/admin/discovery/login"", waiting until ""domcontentloaded""[22m
+"
+admin,/admin/operations,tablet,768,200,/admin/discovery/login,True,admin-tablet-admin-operations.png,
+admin,/admin/inquiries,tablet,768,200,/admin/discovery/login,True,admin-tablet-admin-inquiries.png,
+admin,/admin/discovery,tablet,768,200,/admin/discovery/login,True,admin-tablet-admin-discovery.png,
+admin,/admin/clients,tablet,768,200,/admin/discovery/login,True,admin-tablet-admin-clients.png,
+admin,/admin/billing,tablet,768,200,/admin/discovery/login,True,admin-tablet-admin-billing.png,
+admin,/admin/projects,tablet,768,200,/admin/discovery/login,True,admin-tablet-admin-projects.png,
+admin,/admin/projects/development,tablet,768,200,/admin/discovery/login,True,admin-tablet-admin-projects-development.png,
+admin,/admin/projects/product-design,tablet,768,200,/admin/discovery/login,True,admin-tablet-admin-projects-product-design.png,
+admin,/admin/projects/seo,tablet,768,200,/admin/discovery/login,True,admin-tablet-admin-projects-seo.png,
+admin,/admin/reviews,tablet,768,200,/admin/reviews/login,True,admin-tablet-admin-reviews.png,
+admin,/admin/reviews/login,tablet,768,200,/admin/reviews/login,False,admin-tablet-admin-reviews-login.png,
+admin,/admin/records,tablet,768,200,/admin/records,False,admin-tablet-admin-records.png,"page.evaluate: Execution context was destroyed, most likely because of a navigation"
+public,/,desktop,1440,200,/,False,public-desktop-home.png,
+public,/about,desktop,1440,200,/about,False,public-desktop-about.png,
+public,/services,desktop,1440,200,/services,False,public-desktop-services.png,
+public,/services/ux-ui-design,desktop,1440,200,/services/ux-ui-design,False,public-desktop-services-ux-ui-design.png,
+public,/services/nextjs-development,desktop,1440,200,/services/nextjs-development,False,public-desktop-services-nextjs-development.png,
+public,/services/seo-website-optimization,desktop,1440,200,/services/seo-website-optimization,False,public-desktop-services-seo-website-optimization.png,
+public,/pricing,desktop,1440,200,/pricing,False,public-desktop-pricing.png,
+public,/process,desktop,1440,200,/process,False,public-desktop-process.png,
+public,/work,desktop,1440,200,/work,False,public-desktop-work.png,
+public,/work/umer-mobile-parts,desktop,1440,200,/work/umer-mobile-parts,False,public-desktop-work-umer-mobile-parts.png,
+public,/work/trailmix-local-discovery-concept,desktop,1440,200,/work/trailmix-local-discovery-concept,False,public-desktop-work-trailmix-local-discovery-concept.png,
+public,/contact,desktop,1440,200,/contact,False,public-desktop-contact.png,
+public,/discovery,desktop,1440,200,/discovery,False,public-desktop-discovery.png,
+public,/faq,desktop,1440,200,/faq,False,public-desktop-faq.png,
+public,/insights,desktop,1440,200,/insights,False,public-desktop-insights.png,
+public,/insights/clarity-before-complexity,desktop,1440,200,/insights/clarity-before-complexity,False,public-desktop-insights-clarity-before-complexity.png,
+public,/insights/websites-that-convert-without-feeling-salesy,desktop,1440,200,/insights/websites-that-convert-without-feeling-salesy,False,public-desktop-insights-websites-that-convert-without-feeling-salesy.png,
+public,/insights/designing-for-mvp-clarity,desktop,1440,200,/insights/designing-for-mvp-clarity,False,public-desktop-insights-designing-for-mvp-clarity.png,
+public,/privacy,desktop,1440,200,/privacy,False,public-desktop-privacy.png,
+public,/terms,desktop,1440,200,/terms,False,public-desktop-terms.png,
+client,/client,desktop,1440,200,/client,False,client-desktop-client.png,
+client,/client/login,desktop,1440,200,/client/login,False,client-desktop-client-login.png,
+client,/client/forgot-password,desktop,1440,200,/client/forgot-password,False,client-desktop-client-forgot-password.png,
+client,/client/reset-password,desktop,1440,200,/client/reset-password,False,client-desktop-client-reset-password.png,
+client,/client/billing,desktop,1440,200,/client/billing,False,client-desktop-client-billing.png,
+client,/client/invitations/accept,desktop,1440,200,/client/invitations/accept,False,client-desktop-client-invitations-accept.png,
+admin,/admin,desktop,1440,200,/admin,False,admin-desktop-admin.png,
+admin,/admin/discovery/login,desktop,1440,200,/admin/discovery/login,False,admin-desktop-admin-discovery-login.png,
+admin,/admin/operations,desktop,1440,200,/admin/discovery/login,True,admin-desktop-admin-operations.png,
+admin,/admin/inquiries,desktop,1440,200,/admin/discovery/login,True,admin-desktop-admin-inquiries.png,
+admin,/admin/discovery,desktop,1440,200,/admin/discovery/login,True,admin-desktop-admin-discovery.png,
+admin,/admin/clients,desktop,1440,200,/admin/discovery/login,True,admin-desktop-admin-clients.png,
+admin,/admin/billing,desktop,1440,200,/admin/discovery/login,True,admin-desktop-admin-billing.png,
+admin,/admin/projects,desktop,1440,200,/admin/discovery/login,True,admin-desktop-admin-projects.png,
+admin,/admin/projects/development,desktop,1440,200,/admin/discovery/login,True,admin-desktop-admin-projects-development.png,
+admin,/admin/projects/product-design,desktop,1440,200,/admin/discovery/login,True,admin-desktop-admin-projects-product-design.png,
+admin,/admin/projects/seo,desktop,1440,200,/admin/discovery/login,True,admin-desktop-admin-projects-seo.png,
+admin,/admin/reviews,desktop,1440,200,/admin/reviews/login,True,admin-desktop-admin-reviews.png,
+admin,/admin/reviews/login,desktop,1440,200,/admin/reviews/login,False,admin-desktop-admin-reviews-login.png,
+admin,/admin/records,desktop,1440,200,/admin/records,False,admin-desktop-admin-records.png,"page.evaluate: Execution context was destroyed, most likely because of a navigation"

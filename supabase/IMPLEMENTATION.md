@@ -20,4 +20,14 @@
 - Ready for proposal means internal readiness ONLY. No auto project creation, client notifications, or proposals.
 - Latest local modifications may differ from uploaded ZIP. Carefully merge, do not blindly overwrite `discovery-admin.tsx`.
 - Version allocation uses unique (discovery_id, version); simultaneous writers receive 409 and should reload.
-- Migration is additive. No existing discovery records altered.
+- Migration is additive. It backfills the new readiness flag for records already qualified or scoped so existing workflows remain usable.
+
+## Discovery Clarification & Session Workflow
+
+1. Apply `supabase/migrations/20261105000100_discovery_clarification_workflow.sql` after the existing Discovery and work-scope migrations.
+2. Configure `RESEND_API_KEY`, `DISCOVERY_NOTIFICATION_FROM` (or `INQUIRY_REPLY_FROM`), `NEXT_PUBLIC_SITE_URL`, and a `LEAD_LINK_SECRET` of at least 32 characters.
+3. Open an active Discovery record. Add questions, offer discussion methods, and send the private client link.
+4. The client can answer, confirm a service choice when the original request was unsure, and select a discussion method. The admin plans the session, requests confirmation, records findings, assesses each service, and saves scope readiness.
+5. Scope versions and project conversion remain blocked until the saved readiness status is `ready`.
+
+Client response tokens are hashed in storage and expire after 30 days. Clarification/session data is private and accessed through authenticated admin APIs or the scoped response link; no provider delivery or meeting is claimed until the respective provider accepts the request.

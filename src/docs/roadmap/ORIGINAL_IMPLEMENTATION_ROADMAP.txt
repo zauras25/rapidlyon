@@ -1,0 +1,241 @@
+RAPIDLYON
+PRODUCT & BUSINESS
+IMPLEMENTATION ROADMAP
+ترجیحی نفاذ کی مکمل رپورٹ
+Business Clarity  •  Lead Journey  •  Project Operations  •  Launch Quality
+نسخہ: 1.0   |   تاریخ: 29 اکتوبر 2026   |   بنیاد: rapidlyon-fresh.zip
+یہ رپورٹ موجودہ کوڈ میں دستیاب خصوصیات، نامکمل Integration، Client Confusion Points اور Testing Risks کی بنیاد پر ترتیب دی گئی ہے۔ مقصد نئی پیچیدگی شامل کرنا نہیں بلکہ موجودہ نظام کو صحیح ترتیب سے مکمل اور قابلِ اعتماد بنانا ہے۔
+حتمی فیصلہ
+پہلے Technical Baseline محفوظ کریں، اس کے بعد Business Messaging واضح کریں، پھر Inquiry سے Discovery کا ربط مکمل کریں۔ Proposal اور Project Activation اسی بنیاد کے بعد، Client Billing اس کے بعد، اور Production Release مکمل Integration Testing کے بعد کی جائے۔
+ 
+1 — Executive Summary
+RapidlyOn تین بنیادی سروسز فراہم کرتا ہے: Product Design، Next.js Development اور SEO/Optimization۔ Public Website کے ساتھ Admin اور Client Workspace کا بنیادی نظام بھی موجود ہے؛ اصل Gap ان کے درمیان روابط، وضاحت، قابلِ اعتماد ڈیٹا اور End-to-End Verification کا ہے۔
+تین اصول
+•  Existing-first: پہلے موجودہ Component، API، Schema اور Flow آڈٹ کریں؛ Duplicate Feature نہ بنائیں۔
+•  Client-first: ہر Customer Action کے بعد واضح Status، Next Step، Owner اور Communication ہو۔
+•  Release-gated: ہر Phase اپنے Acceptance Tests پاس کیے بغیر اگلے Phase میں نہ جائے۔
+ضروری ترتیب
+مرحلہ	کام	ترجیح
+0 — Baseline	Source، migrations، test/build، staging	P0 — لازمی
+1 — Clarity	Positioning، Services، Pricing، Portfolio Trust	P0 — لازمی
+2 — Leads	Inquiry، Discovery، unified history، follow-ups	P0 — لازمی
+3 — Activation	Scope، Proposal، Agreement، Invite، Milestones	P1 — بنیادی
+4 — Delivery	Client workspace، approvals، billing، payment policy	P1 — بنیادی
+5 — Launch	Portfolio data، SEO، Analytics، Security، QA	P0 — release gate
+Business Rules — پہلے ہی Locked کریں
+•  Inquiry صرف ابتدائی سوال یا مختصر رابطے کے لیے ہے؛ Discovery تفصیلی Project Request ہے۔ دونوں Guest-first رہیں۔
+•  فارم Submit ہونے کا مطلب Project Accepted یا Payment Due نہیں۔
+•  Proposal/Agreement کی منظوری اور Payment Plan کی شرائط کے بعد ہی Project Activation کی واضح حالت مقرر ہو۔
+•  Admin اور Client ہر وقت ایک ہی Project Status دیکھیں؛ Draft/Demo Data کو حقیقی Results ظاہر نہ کریں۔
+Reading note
+اس رپورٹ میں “موجود” کا مطلب Source Code موجود ہے؛ “نامکمل” کا مطلب مکمل User Flow یا Data Integration نظر نہیں آئی؛ “غیر تصدیق شدہ” کا مطلب Live Environment، Email، Database یا Signed-in Browser QA درکار ہے۔
+2 — Evidence-based Feature Status
+فیچر	حالت	عمل
+Guest Inquiry + Discovery Forms	موجود	Flow اور confirmation بہتر کریں
+Admin Reply + History	موجود	Email provider اور history QA
+Inquiry → Discovery linkage	نامکمل	Linked lead / prefill
+Public portfolio publication	نامکمل	Published storage سے public read
+Proposal / Invoice / Agreement	موجود	Acceptance + record consistency QA
+Client workspace / milestones	موجود	Permission & lifecycle QA
+Online invoice payment	غیر فعال	Endpoint 503؛ decision required
+Follow-up scheduler	واضح نہیں ملا	Cron/reminder engine
+Guest status tracking	واضح نہیں ملا	Signed link + safe status
+Funnel analytics	واضح نہیں ملا	Event tracking + consent
+Dynamic SEO metadata	نامکمل	Route metadata / structured data
+Clean source test baseline	مسئلہ	ZIP میں legacy src/src موجود
+ 
+Phase 0 — Technical Baseline & Release Safety
+اس Phase کے دوران Public UI دوبارہ Design نہیں ہوگی۔ مقصد یہ یقینی بنانا ہے کہ اگلے تمام Changes ایک محفوظ، Tested اور Rollback-capable Foundation پر ہوں۔
+R0.1  |  Backup اور Staging Environment
+موجودہ حالت: Production configuration اور حقیقی credentials اس ZIP میں شامل نہیں۔
+نفاذ: اصل Code، Database Schema اور موجودہ Data کا محفوظ Backup؛ نئی Working Branch؛ Staging .env اور Test Accounts تیار کریں۔
+قبولیت کا معیار: Backup Restore Demonstration، Separate Staging اور documented rollback دستیاب ہوں۔
+R0.2  |  Legacy Source Cleanup
+موجودہ حالت: ZIP میں src/src باقی ہے اور release test اسے قبول نہیں کرتا۔
+نفاذ: پہلے imports اور usage verify کریں، پھر duplicate legacy material کو src کے باہر archive کریں؛ فائلیں اندھا دھند Delete نہ کریں۔
+قبولیت کا معیار: npm test legacy-directory check پاس کرے؛ اصل app کے imports محفوظ رہیں۔
+متعلقہ کوڈ: scripts/v4-release-check.mjs; src/src
+R0.3  |  Schema + API Inventory
+موجودہ حالت: Supabase migrations، Admin اور Client APIs موجود ہیں؛ deployed schema کی تصدیق نہیں۔
+نفاذ: Migrations order، tables، RLS/authorization، serial number functions، storage buckets اور webhook settings کی inventory بنائیں۔
+قبولیت کا معیار: Existing database records محفوظ؛ schema drift اور missing migrations کی فہرست تیار ہو۔
+متعلقہ کوڈ: supabase/migrations/; src/app/api/
+R0.4  |  Clean Build + Authenticated QA Baseline
+موجودہ حالت: ZIP Documentation میں build اور external integrations غیر تصدیق شدہ درج ہیں۔
+نفاذ: Clean npm ci، npm test، lint، tsc، build؛ guest/admin/client routes کا 390/768/1440px QA؛ ہر failure evidence محفوظ کریں۔
+قبولیت کا معیار: Baseline checklist میں pass/fail اور reproduce steps موجود ہوں؛ Critical Failures block کریں۔
+متعلقہ کوڈ: package.json; scripts/v4-release-check.mjs
+Phase Gate — Backup + Clean Build + Migration Inventory مکمل ہونے کے بعد ہی Feature Changes شروع کریں۔
+Phase 1 — Business Clarity & Trust
+یہ Phase Client کے بنیادی سوالات حل کرے گا: یہ Studio کیا بناتا ہے، میرے لیے کیا مناسب ہے، کیسے شروع کروں، قیمت کیسے بنتی ہے اور سابقہ کام کا ثبوت کیا ہے؟
+R1.1  |  Hero Value Proposition
+موجودہ حالت: موجودہ Hero Creative ہے مگر مخصوص Client Outcome واضح نہیں۔
+نفاذ: Client type، service outcome اور next step واضح کریں؛ ایک Primary CTA: Start a Project اور ایک Secondary CTA: View Work۔
+قبولیت کا معیار: پہلے 5–10 سیکنڈ میں سمجھ آئے کہ کیا Service ہے، کس کے لیے ہے اور کیسے Start کرنا ہے۔
+متعلقہ کوڈ: src/app/page.tsx
+R1.2  |  Service Types + Scope Clarity
+موجودہ حالت: Design، Development، SEO موجود ہیں؛ Inclusions و Exclusions کو مزید واضح کرنا ہے۔
+نفاذ: Design Only، Development Only، Complete Build اور Optimization کے واضح decision paths؛ sample deliverables اور out-of-scope چیزیں لکھیں۔
+قبولیت کا معیار: Visitor بغیر Sales Call کے اپنی Service Category منتخب کر سکے۔
+متعلقہ کوڈ: src/data/site.ts; src/app/services/[slug]/page.tsx
+R1.3  |  Pricing & FAQ Consistency
+موجودہ حالت: Pricing میں “By scope” ہے؛ FAQ میں starting fee/packages کی زبان مل سکتی ہے۔
+نفاذ: ایک commercial policy منتخب کریں: starting-from، packages یا custom quote؛ FAQ، pricing، discovery اور proposals میں الفاظ یکساں کریں۔
+قبولیت کا معیار: کسی بھی دو صفحات پر متضاد price، revision یا billing commitment نہ ہو۔
+متعلقہ کوڈ: src/components/site/public-pages.tsx; src/data/site.ts
+R1.4  |  Inquiry vs Discovery Decision
+موجودہ حالت: دونوں Guest Forms موجود ہیں؛ انتخاب کی رہنمائی بہتر بنانی ہے۔
+نفاذ: Contact پر “Ask a question” اور Discovery پر “Request a project review”؛ دونوں کے fields اور outcome کا مختصر فرق دکھائیں۔
+قبولیت کا معیار: Visitor صحیح فارم منتخب کرے؛ Account requirement پر ابہام ختم ہو۔
+متعلقہ کوڈ: src/components/forms/public-forms.tsx
+R1.5  |  Portfolio Proof + Case Study Content
+موجودہ حالت: Concept اور Personal Projects موجود ہیں؛ Visual Evidence محدود ہے۔
+نفاذ: Screenshots، Role، Process، Scope، Verified Outcome اور “Concept/Personal/Client” labels؛ غیر تصدیق شدہ metrics نہ لگائیں۔
+قبولیت کا معیار: ہر Case Study کے دعوے کی supporting artifact ہو؛ empty case studies publish نہ ہوں۔
+R1.6  |  Legal & Trust Content
+موجودہ حالت: Privacy/Terms مختصر ہیں۔
+نفاذ: Data Collection، retention، ownership، confidentiality، payment/refund policy کا legal review؛ client communication channels واضح کریں۔
+قبولیت کا معیار: Approved legal copy اور consistent trust messaging موجود ہوں۔
+Phase Gate — Content/Business Owner تمام Public Claims، Pricing Rules اور Service Scope approve کرے۔
+ 
+Phase 2 — Unified Inquiry & Discovery Journey
+اس Phase کا outcome ایک ایسا Lead System ہے جس میں ایک شخص کی پوری History دکھائی دے، Admin follow-up کر سکے اور Client کو Submission کے بعد اگلا قدم معلوم ہو۔
+R2.1  |  Lead Identity & Single Timeline
+موجودہ حالت: Inquiry اور Discovery کے الگ records/APIs ہیں۔
+نفاذ: Existing IDs برقرار رکھ کر relation table یا shared lead reference منتخب کریں؛ dedupe rules؛ event timeline اور consistent statuses۔
+قبولیت کا معیار: Inquiry → Discovery → Proposal history Admin میں ایک جگہ کھلے؛ existing submissions migrate ہوں۔
+متعلقہ کوڈ: src/app/api/inquiries/route.ts; src/app/api/discovery/route.ts
+R2.2  |  Inquiry → Discovery Conversion
+موجودہ حالت: Automatic linkage/prefill موجودہ files میں واضح نہیں۔
+نفاذ: Admin “Invite to Discovery” action، short-lived signed one-time token، name/email prefill، linked submission۔
+قبولیت کا معیار: ایک Inquiry سے linked Discovery بنے؛ token expire/replay handling کام کرے؛ کسی اور User کا data نہ کھلے۔
+R2.3  |  Reference + Receipt + Next Steps
+موجودہ حالت: Forms success message موجود ہے؛ formal trackable receipt مکمل نہیں۔
+نفاذ: Server-generated public-safe request number؛ confirmation page اور acknowledgement email؛ exact next step۔
+قبولیت کا معیار: Submission میں duplicate reference نہ بنے؛ client کو reference اور expected communication route ملے۔
+R2.4  |  Reply / Incoming Email Reliability
+موجودہ حالت: Admin Reply API اور Resend webhook موجود ہیں، live delivery غیر تصدیق شدہ۔
+نفاذ: Email provider configuration، reply thread linkage، retry/failed statuses، inbound webhook signature، delivery logs۔
+قبولیت کا معیار: Successful reply/email history correlated ہو؛ failure Admin کو actionable نظر آئے۔
+متعلقہ کوڈ: src/app/api/admin/inquiries/[id]/reply/route.ts; src/app/api/webhooks/resend-inquiry/route.ts
+R2.5  |  Follow-up Scheduling
+موجودہ حالت: Follow-up Date fields موجود ہیں؛ automated scheduler واضح نہیں۔
+نفاذ: Scheduler + due/overdue query + secure job endpoint + idempotency + reminders + admin assignment۔
+قبولیت کا معیار: Due reminder ایک بار trigger ہو؛ timezone اور retry safe ہوں؛ completed leads پر reminder نہ جائے۔
+R2.6  |  Guest Request Status
+موجودہ حالت: Public self-service tracking واضح نہیں ملا۔
+نفاذ: Email-authenticated short-lived status link؛ صرف public-safe statuses: Received, Reviewing, Needs info, Proposal sent, Closed۔
+قبولیت کا معیار: Guessable IDs سے دوسرے clients کی details نہ ملیں؛ sensitive internal notes hide ہوں۔
+Phase Gate — Guest Submission → Acknowledgement → Admin Reply → Linked Discovery → Status Update پورا E2E Pass ہو۔
+Phase 3 — Commercial Decision & Project Activation
+Lead “Qualified” ہو جانے کے بعد اسے واضح Scope، Proposal، Agreement، Milestone Plan اور Client Access کے ساتھ Project میں تبدیل کرنا ہے۔
+R3.1  |  Scope Definition
+موجودہ حالت: Discovery scope اور project conversion APIs موجود ہیں۔
+نفاذ: Work Type / Deliverables / Exclusions / Dependencies / Time Estimates / Revision Policy ایک signed-off version میں محفوظ کریں۔
+قبولیت کا معیار: Proposal میں scope version traceable ہو؛ تبدیلی پر نئی version بنے۔
+متعلقہ کوڈ: src/app/api/admin/discovery/[id]/scope/route.ts
+R3.2  |  Proposal Lifecycle
+موجودہ حالت: Commercial APIs پہلے سے موجود ہیں۔
+نفاذ: Draft → Sent → Viewed (اگر track کیا جائے) → Accepted/Declined/Expired؛ pricing line items اور snapshot validation۔
+قبولیت کا معیار: Accepted snapshot immutable رہے؛ outdated/expired quote قبول نہ ہو۔
+متعلقہ کوڈ: src/app/api/admin/commercial/route.ts
+R3.3  |  Agreement & Milestone Plan
+موجودہ حالت: Agreement/Project modules موجود ہیں؛ e2e verification چاہیے۔
+نفاذ: Proposal acceptance کے بعد Agreement، payment rules، project milestones؛ responsible party اور dependencies واضح کریں۔
+قبولیت کا معیار: Project start condition business policy سے match کرے؛ agreement audit trail محفوظ ہو۔
+R3.4  |  Client Invitation & Activation
+موجودہ حالت: Client invitation API موجود ہے۔
+نفاذ: Approved project پر invitation؛ existing account merge/verify، expired token، unaccepted invite، resend states۔
+قبولیت کا معیار: صرف متعلقہ Client ہی Project دیکھ سکے؛ activation state واضح ہو۔
+متعلقہ کوڈ: src/app/api/admin/client-projects/[projectId]/invitation/route.ts
+Phase Gate — Inquiry Lead → Scope → Proposal → Agreement → Invite → Project Dashboard بغیر manual data patch کے مکمل ہو۔
+ 
+Phase 4 — Client Workspace, Delivery & Billing
+یہ Phase حقیقی Project Delivery اور Billing کو قابلِ اعتماد بناتا ہے۔ Feature Presence کی بجائے Permissions، Empty/Error States اور Verified Business Events کو ترجیح دیں۔
+R4.1  |  Client Workspace Permissions
+موجودہ حالت: Authenticated Client UI موجود ہے؛ real login/session test درکار ہے۔
+نفاذ: Role-based visibility، invite-only project access، session expiry، loading/error states اور unauthorized access tests۔
+قبولیت کا معیار: Client A کبھی Client B کے documents/project/details نہ دیکھ سکے۔
+متعلقہ کوڈ: src/components/console/client-console.tsx; src/lib/client-auth.ts
+R4.2  |  Milestone Updates + Approval
+موجودہ حالت: Milestone and deliverable endpoints موجود ہیں۔
+نفاذ: Draft / Active / Submitted / Changes requested / Approved حالات lock کریں؛ client feedback، notifications، attachments۔
+قبولیت کا معیار: ہر approval اور requested change timestamp/user کے ساتھ audit trail میں محفوظ ہو۔
+R4.3  |  Invoice & Receipt Lifecycle
+موجودہ حالت: Invoice records اور verified receipt viewing موجود ہیں۔
+نفاذ: Issued، Due، Overdue، Partially Paid، Paid، Cancelled کے rules؛ duplicate invoice/receipt prevention؛ downloadable records۔
+قبولیت کا معیار: Invoice، payments اور balance ہمیشہ consistent رہیں۔
+متعلقہ کوڈ: src/app/api/client/commercial/route.ts; src/app/api/client/receipts/[paymentId]/route.ts
+R4.4  |  Payment Decision — Optional Integration
+موجودہ حالت: Client payment API واضح 503 واپس کرتی ہے؛ Safepay webhook reconciliation بھی نامکمل ہے۔
+نفاذ: پہلے decide: manual verified bank transfer یا online gateway؛ online ہو تو checkout، verified webhook، idempotency، refund/failure rules۔
+قبولیت کا معیار: کبھی fake success یا صرف client redirect پر Paid status نہ لگے؛ reconciliation verified ہو۔
+متعلقہ کوڈ: src/app/api/client/invoices/[invoiceId]/payment/route.ts; src/app/api/webhooks/safepay/route.ts
+R4.5  |  Admin Operations + Action Center
+موجودہ حالت: Counts اور admin operations موجود ہیں؛ notification queue basic ہے۔
+نفاذ: Status-aware task queue: overdue followup، pending approval، failed email، unpaid invoice؛ direct record links۔
+قبولیت کا معیار: ہر actionable item کا owner، status اور resolution path ہو؛ count/detail consistent ہوں۔
+Phase Gate — Invited Client → Approved Milestone → Invoice → Verified Payment/Receipt → Closeout پاس ہو۔
+Phase 5 — Launch, SEO, Security & Observability
+یہ آخری Phase صرف Cosmetic QA نہیں ہے؛ Public Pages اور Production Services کو ایک ہی Runtime میں reliably کام کرنا چاہیے۔
+R5.1  |  Public Portfolio Data Source
+موجودہ حالت: Public Work Page اور Detail hardcoded featuredProjects پڑھتے ہیں، Sitemap published storage پڑھتا ہے۔
+نفاذ: Server-side public read کو getPublishedWorkProjects سے connect کریں، proper caching/revalidation، preview vs publish separation۔
+قبولیت کا معیار: Published entry Work list/detail/sitemap میں؛ draft کہیں Public نہ ہو؛ dead links نہ ہوں۔
+متعلقہ کوڈ: src/components/site/public-pages.tsx; src/app/work/[slug]/page.tsx; src/app/sitemap.ts
+R5.2  |  SEO & Content Structure
+موجودہ حالت: Dynamic routes پر dedicated generateMetadata نظر نہیں آیا۔
+نفاذ: Unique meta، canonical، OpenGraph، sitemap consistency، schema جہاں متعلق ہو؛ robots/noindex admin/client۔
+قبولیت کا معیار: ہر important public URL کے correct metadata ہوں؛ drafts index نہ ہوں۔
+R5.3  |  Analytics + Funnel Evidence
+موجودہ حالت: Source میں reliable conversion instrumentation واضح نہیں۔
+نفاذ: Consent-aware events: view_service، start_inquiry، submit_inquiry، start_discovery، submit_discovery، proposal_accept۔
+قبولیت کا معیار: Events deduplicated ہوں؛ personally identifying data raw event میں بلا ضرورت نہ ہو۔
+R5.4  |  Accessibility & Responsive QA
+موجودہ حالت: Visual snapshots پر latest signed-in flow کا complete evidence نہیں۔
+نفاذ: Mobile-first at 390/768/1440; keyboard, contrast, reduced motion, error focus, empty/error states and form labels۔
+قبولیت کا معیار: Critical routes ہر viewport پر usable؛ blockers صفر۔
+R5.5  |  Security, Monitoring & Deployment Gate
+موجودہ حالت: Real credentials، live webhooks، production build الگ validation مانگتے ہیں۔
+نفاذ: Secrets/headers/rate limits/RLS، audit logs، backups، monitoring alerts، staging rehearsal، rollback۔
+قبولیت کا معیار: All P0 issues resolved؛ no unauthorized access، build/test green؛ rollback tested۔
+Phase Gate — No production deployment before complete UAT sign-off and documented rollback.
+ 
+3 — Recommended End-to-End Test Scenarios
+Test ID	اصل Journey	Success Condition
+E2E-01	Guest Inquiry → Email → Admin Reply	one lead; message visible; receipt logged
+E2E-02	Inquiry → Invite to Discovery	secure link + prefill + linked history
+E2E-03	Discovery → Scope → Proposal	no lost data; version consistency
+E2E-04	Proposal → Agreement → Invitation	correct client; valid approval states
+E2E-05	Invite → Login → Client Workspace	project permissions and session safe
+E2E-06	Milestone → Deliverable → Approval	timestamped review record
+E2E-07	Invoice → Payment/Manual Verification	no false Paid; verified balance
+E2E-08	Admin Publish → Public Work → Sitemap	published only; route exists
+NEG-01	Expired token / duplicate submit	safe failure; no duplicate records
+NEG-02	Unauthorized / stale user session	403/401; no data exposure
+NEG-03	Email failure / webhook retry	visible retry; no duplicate state transition
+4 — Ownership & Change Control
+•  Business Owner: pricing، target client، payment policy، legal claims اور service deliverables approve کرے۔
+•  Product Designer: information architecture، copy، client flows، states، responsive UX اور usability acceptance سنبھالے۔
+•  Full-stack Engineer: API، database relations، migration safety، auth، billing اور notifications implement کرے۔
+•  QA / Reviewer: end-to-end tests، edge cases، multi-device acceptance اور deployment signoff کرے۔
+•  ہر Phase کے شروع میں current code scan؛ end پر pull request، database migration، changelog، screenshots اور rollback note محفوظ ہوں۔
+5 — Stop / Go Policy
+GO: Phase Gate پاس؛ Source of Truth واضح؛ staging data محفوظ؛ relevant acceptance criteria کامیاب۔
+STOP: unresolved critical build failure، payment false positive، cross-client data exposure، broken public route یا destructive migration without backup۔
+6 — Working Scope: کیا ابھی نہیں بنانا؟
+بغیر واضح کاروباری ضرورت کے Marketplace، Live Chat، AI Chatbot، CRM Replacement، Subscription Billing، Multi-team Organization Roles یا نئی Animations نہ بنائیں۔ پہلے ضروری Journey کو مکمل کریں؛ نئی خصوصیات صرف data-backed client need کے بعد شامل ہوں۔
+7 — Implementation Reference Map
+Area	Existing source location
+Public messaging	src/app/page.tsx · src/data/site.ts
+Public pages	src/components/site/public-pages.tsx
+Public forms	src/components/forms/public-forms.tsx
+Lead APIs	src/app/api/inquiries · src/app/api/discovery
+Admin workflows	src/components/console/admin-console.tsx
+Commercial API	src/app/api/admin/commercial
+Client workspace	src/components/console/client-console.tsx
+Payment API	src/app/api/client/invoices/[invoiceId]/payment/route.ts
+Portfolio storage	src/lib/work-project-storage.ts
+SEO sitemap	src/app/sitemap.ts
+Release check	scripts/v4-release-check.mjs
+

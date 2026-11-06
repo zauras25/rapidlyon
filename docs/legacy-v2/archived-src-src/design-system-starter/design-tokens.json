@@ -1,0 +1,17 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "name": "RapidlyOn / Interface System v1",
+  "color": {
+    "text": { "primary": "#203B36", "secondary": "#4F655E", "muted": "#6A7D74", "inverse": "#F8FAF4" },
+    "brand": { "primary": "#244D42", "hover": "#163F35", "sage": "#C4D6C8", "gold": "#D7B17B" },
+    "surface": { "canvas": "#FAF9F5", "card": "#FFFEFA", "subtle": "#F2F4EE", "mist": "#EDF3ED" },
+    "border": { "default": "#DBE3D8" },
+    "semantic": { "success": "#277453", "warning": "#AD6B25", "error": "#B64E43", "info": "#386E99" }
+  },
+  "typography": { "heading": "Manrope", "body": "DM Sans", "h1Desktop": "clamp(2.65rem, 5.8vw, 5.35rem)", "h2Desktop": "clamp(2.05rem, 4vw, 3.65rem)", "bodyBase": "1rem / 1.6" },
+  "spacingPx": [4,8,12,16,20,24,32,40,48,64,80,96],
+  "radiusPx": { "sm": 10, "md": 16, "lg": 24, "xl": 32, "pill": 999 },
+  "contentMaxWidthPx": 1180,
+  "breakpointsPx": { "tablet": 1000, "mobile": 760 },
+  "motion": { "defaultMs": 220, "respectReducedMotion": true }
+}

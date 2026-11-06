@@ -53,10 +53,11 @@ export async function POST(request: Request,{params}:Context) {
   if(!config) return NextResponse.json({success:false,message:"Supabase not configured"},{status:503});
   const h=headers(config.serviceRoleKey);
   try {
-    const parent=await fetch(`${config.url}/rest/v1/discovery_submissions?id=eq.${id}&select=id&limit=1`,{headers:h,cache:"no-store"});
+    const parent=await fetch(`${config.url}/rest/v1/discovery_submissions?id=eq.${id}&select=id,scope_readiness_status&limit=1`,{headers:h,cache:"no-store"});
     if(!parent.ok) return NextResponse.json({success:false,message:"Discovery lookup failed"},{status:502});
     const parentRows=await parent.json();
     if(!Array.isArray(parentRows)||!parentRows.length) return NextResponse.json({success:false,message:"Discovery not found"},{status:404});
+    if(parentRows[0].scope_readiness_status!=='ready') return NextResponse.json({success:false,message:"Record a Ready for scope decision before saving a scope version."},{status:409});
     const latest=await fetch(`${config.url}/rest/v1/discovery_work_scopes?discovery_id=eq.${id}&select=version&order=version.desc&limit=1`,{headers:h,cache:"no-store"});
     if(!latest.ok) return NextResponse.json({success:false,message:"Unable to read scope versions"},{status:502});
     const versions=await latest.json() as {version:number}[];

@@ -28,6 +28,68 @@ export const discoveryMethods = [
   "Live demo or product walkthrough",
 ] as const;
 
+export const discoveryClarificationMethods = [
+  "whatsapp",
+  "voice",
+  "video",
+  "moderated",
+  "unmoderated",
+] as const;
+
+export const discoveryQuestionStatuses = ["draft", "sent", "answered", "closed"] as const;
+export const discoveryInvitationStatuses = ["draft", "sent", "failed", "responded", "expired"] as const;
+export const discoverySessionStatuses = [
+  "selected",
+  "planned",
+  "awaiting_confirmation",
+  "confirmed",
+  "reschedule_requested",
+  "completed",
+] as const;
+
+export const discoveryClarificationQuestionSchema = z.object({
+  id: z.string().uuid(),
+  category: z.string().max(80),
+  prompt: z.string().min(1).max(1000),
+  status: z.enum(discoveryQuestionStatuses),
+  answer: z.string().nullable(),
+  close_reason: z.string().nullable(),
+});
+
+export const discoveryClarificationInvitationSchema = z.object({
+  id: z.string().uuid(),
+  version: z.number().int().positive(),
+  status: z.enum(discoveryInvitationStatuses),
+  message: z.string().max(5000),
+  offered_methods: z.array(z.enum(discoveryClarificationMethods)).min(1).max(5),
+  expires_at: z.string().datetime({ offset: true }),
+  responded_at: z.string().datetime({ offset: true }).nullable(),
+  questions: z.array(discoveryClarificationQuestionSchema),
+  session: z.object({
+    id: z.string().uuid(),
+    method: z.enum(discoveryClarificationMethods),
+    status: z.enum(discoverySessionStatuses),
+    client_confirmed_services: z.array(z.string()),
+    preferred_time: z.string().max(200).nullable(),
+    client_note: z.string().max(2000).nullable(),
+    planned_at: z.string().datetime({ offset: true }).nullable(),
+    duration_minutes: z.number().int().positive().nullable(),
+    owner: z.string().max(160).nullable(),
+    agenda: z.string().max(5000).nullable(),
+    access_details: z.string().max(1000).nullable(),
+    findings: z.string().max(10000).nullable(),
+    outcome: z.string().max(5000).nullable(),
+    confirmed_at: z.string().datetime({ offset: true }).nullable(),
+    completed_at: z.string().datetime({ offset: true }).nullable(),
+  }).nullable(),
+});
+
+export const discoveryScopeReadinessSchema = z.object({
+  status: z.enum(["not_reviewed", "more_information", "ready", "not_a_fit"]),
+  reason: z.string().max(5000),
+  updated_at: z.string().datetime({ offset: true }).nullable(),
+});
+
 const engagementOptionIds = new Set<string>(engagementOptions.map((option) => option.id));
 const answersSchema = z.record(z.string(), z.union([z.string().max(5000), z.array(z.string().max(200)).max(50)]))
   .superRefine((answers, context) => {

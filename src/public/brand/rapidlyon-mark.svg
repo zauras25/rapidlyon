@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Creator: CorelDRAW X7 --><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" width="128" height="128" version="1.1" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd" viewBox="100 -365 5028 5028">
+ <defs>
+  <style type="text/css">
+   
+    .str0 {stroke:#373435;stroke-width:6.94488}
+    .str1 {stroke:#ACFC08;stroke-width:41.6654;stroke-linecap:round;stroke-linejoin:round}
+    .fil1 {fill:none}
+    .fil3 {fill:#FEFEFE}
+    .fil0 {fill:#86C20F}
+    .fil4 {fill:#373435;fill-rule:nonzero}
+    .fil5 {fill:#ABC2A2}
+    .fil6 {fill:#86C20F}
+    .fil7 {fill:url(#id0)}
+    .fil2 {fill:url(#id1)}
+   
+  </style>
+  <linearGradient id="id0" gradientUnits="userSpaceOnUse" x1="2431.51" y1="10688" x2="4931.51" y2="10688">
+   <stop offset="0" style="stop-opacity:1; stop-color:#45641F"/>
+   <stop offset="1" style="stop-opacity:1; stop-color:#BCE25A"/>
+  </linearGradient>
+  <linearGradient id="id1" gradientUnits="userSpaceOnUse" xlink:href="#id0" x1="1364.02" y1="2151.54" x2="3864.02" y2="2151.54">
+  </linearGradient>
+ <style type="text/css">
+  /* Rotate only the two filled satellite circles. The outlined orbit and R stay still. */
+  #rapidlyon-orbiting-dots {
+    transform-box: view-box;
+    transform-origin: 2614px 2152px;
+    animation: rapidlyon-satellites-orbit 7s linear infinite;
+  }
+  @keyframes rapidlyon-satellites-orbit {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #rapidlyon-orbiting-dots { animation: none; }
+  }
+</style></defs>
+ <g id="Layer_x0020_1">
+  <path class="fil1 str1" d="M2614 422c955,0 1729,775 1729,1730 0,955 -774,1729 -1729,1729 -955,0 -1729,-774 -1729,-1729 0,-955 774,-1730 1729,-1730z"/>
+  <path class="fil2" d="M2614 902c690,0 1250,559 1250,1250 0,690 -560,1250 -1250,1250 -690,0 -1250,-560 -1250,-1250 0,-691 560,-1250 1250,-1250z"/>
+  <path class="fil3" d="M2208 1754c215,-56 583,-85 804,-21 512,149 33,636 -688,660 15,-167 181,-533 -109,-489 -45,71 -103,325 -117,437 -74,4 -101,7 -129,58 8,80 32,83 101,110 3,110 -46,342 35,416 88,27 106,-57 129,-126 24,-73 40,-150 56,-227 126,24 236,59 349,101 191,70 642,307 785,316 115,7 251,-44 185,-151 -36,-37 -150,-56 -216,-79 -73,-25 -621,-214 -673,-252l41 -19c95,-38 139,-42 259,-103 118,-61 272,-183 333,-297 96,-178 86,-337 -70,-456 -293,-223 -1136,-155 -1379,12 0,0 0,0 -1,0 -55,93 -98,195 -125,303 77,-71 352,-173 430,-193z"/>
+  <g id="rapidlyon-orbiting-dots"><path class="fil5" d="M1549 3157c317,0 575,257 575,575 0,317 -258,575 -575,575 -318,0 -575,-258 -575,-575 0,-318 257,-575 575,-575z"/>
+  <path class="fil6" d="M4090 694c206,0 374,167 374,374 0,206 -168,374 -374,374 -207,0 -374,-168 -374,-374 0,-207 167,-374 374,-374z"/>
+  </g></g>
+</svg>

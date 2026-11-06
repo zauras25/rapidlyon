@@ -71,6 +71,14 @@ export async function POST(request: Request, { params }: RouteContext) {
   }
 
   try {
+    const readiness=await fetch(`${config.url}/rest/v1/discovery_submissions?id=eq.${id}&select=scope_readiness_status&limit=1`,{
+      headers:{apikey:config.serviceRoleKey,Authorization:`Bearer ${config.serviceRoleKey}`},
+      cache:'no-store',signal:AbortSignal.timeout(5000),
+    });
+    if(!readiness.ok) return NextResponse.json({success:false,message:'Discovery readiness could not be verified.'},{status:502});
+    const readinessRows=await readiness.json();
+    if(!Array.isArray(readinessRows)||!readinessRows.length) return NextResponse.json({success:false,message:'Discovery request not found.'},{status:404});
+    if(readinessRows[0].scope_readiness_status!=='ready') return NextResponse.json({success:false,message:'Record a Ready for scope decision before creating a client project.'},{status:409});
     const response = await fetch(`${config.url}/rest/v1/rpc/create_client_project_from_discovery`, {
       method: "POST",
       headers: {
