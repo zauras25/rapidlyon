@@ -6,6 +6,7 @@ import { z } from "zod";
 import { isDiscoveryAdmin, isSameOriginRequest } from "@/lib/discovery-auth";
 import { checkRateLimit, rateLimitFailure } from "@/lib/rate-limit";
 import { getSupabaseServerConfig } from "@/lib/supabase-server";
+import { discoveryEmailConfigured, sendDiscoveryEmail } from "@/lib/discovery-email-transport";
 
 const projectIdSchema = z.string().uuid();
 
@@ -50,32 +51,16 @@ function hashToken(token: string) {
   return createHash("sha256").update(token, "utf8").digest("hex");
 }
 
-function getInvitationConfiguration() {
-  const apiKey = process.env.RESEND_API_KEY?.trim();
-  const sender = process.env.CLIENT_INVITATION_FROM?.trim();
-
-  if (
-    !apiKey ||
-    !sender ||
-    !emailSchema.safeParse(sender).success
-  ) {
+function getSiteUrl(request: Request): string | null {
+  const candidate = process.env.NEXT_PUBLIC_SITE_URL?.trim() || new URL(request.url).origin;
+  try {
+    const parsed = new URL(candidate);
+    if (parsed.protocol !== "https:" && !(parsed.protocol === "http:" && parsed.hostname === "localhost")) return null;
+    if (parsed.username || parsed.password || parsed.search || parsed.hash) return null;
+    return parsed.origin;
+  } catch {
     return null;
   }
-
-  return {
-    apiKey,
-    sender,
-  };
-}
-
-function getSiteUrl(request: Request) {
-  const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim();
-
-  if (configured) {
-    return configured.replace(/\/+$/, "");
-  }
-
-  return new URL(request.url).origin;
 }
 
 function createInvitationText(
@@ -106,61 +91,16 @@ async function sendInvitationEmail(
   invitationUrl: string,
   expiresAt: string,
 ) {
-  const configuration = getInvitationConfiguration();
-
-  if (!configuration) {
-    return {
-      ok: false,
-      configurationMissing: true,
-    };
+  if (!discoveryEmailConfigured()) {
+    return { ok: false, configurationMissing: true };
   }
-
-  try {
-    const response = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${configuration.apiKey}`,
-        "Content-Type": "application/json",
-        "Idempotency-Key": `client-invitation-${project.id}-${hashToken(invitationUrl)}`,
-      },
-      body: JSON.stringify({
-        from: configuration.sender,
-        to: [client.email],
-        subject: `Your Rapidlyon project invitation — ${project.name}`,
-        text: createInvitationText(
-          client.name,
-          project.name,
-          invitationUrl,
-          expiresAt,
-        ),
-      }),
-      cache: "no-store",
-      signal: AbortSignal.timeout(10_000),
-    });
-
-    if (!response.ok) {
-      console.error(
-        `Client invitation email provider returned status ${response.status}.`,
-      );
-
-      return {
-        ok: false,
-        configurationMissing: false,
-      };
-    }
-
-    return {
-      ok: true,
-      configurationMissing: false,
-    };
-  } catch {
-    console.error("Client invitation email request failed or timed out.");
-
-    return {
-      ok: false,
-      configurationMissing: false,
-    };
-  }
+  const ok = await sendDiscoveryEmail({
+    to: client.email,
+    subject: `Your RapidlyOn project invitation — ${project.name}`,
+    text: createInvitationText(client.name, project.name, invitationUrl, expiresAt),
+    reference: `client-invitation-${project.id}-${hashToken(invitationUrl)}`,
+  });
+  return { ok, configurationMissing: false };
 }
 
 export async function POST(
@@ -208,6 +148,11 @@ export async function POST(
 
   if (!rateLimit.allowed) {
     return rateLimitFailure(rateLimit);
+  }
+
+  const siteUrl = getSiteUrl(request);
+  if (!siteUrl) {
+    return NextResponse.json({success:false,message:"Configure NEXT_PUBLIC_SITE_URL with a valid HTTPS origin before creating a client invitation."},{status:503});
   }
 
   const config = getSupabaseServerConfig();
@@ -421,14 +366,13 @@ export async function POST(
       );
     }
 
-    const invitationUrl =
-      `${getSiteUrl(request)}/client/invitations/accept?token=` +
-      encodeURIComponent(rawToken);
+    const invitationUrl = new URL("/client/invitations/accept", siteUrl);
+    invitationUrl.searchParams.set("token", rawToken);
 
     const emailResult = await sendInvitationEmail(
       client,
       project,
-      invitationUrl,
+      invitationUrl.toString(),
       expiresAt,
     );
 
@@ -441,7 +385,7 @@ export async function POST(
         {
           success: false,
           message: emailResult.configurationMissing
-            ? "The invitation was created, but Resend or CLIENT_INVITATION_FROM is not configured."
+            ? "The invitation was created, but Hostinger SMTP / Discovery sender is not configured."
             : "The invitation was created, but the email could not be sent.",
           invitation_id: invitationId,
         },
