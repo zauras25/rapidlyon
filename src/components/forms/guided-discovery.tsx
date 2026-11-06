@@ -37,10 +37,47 @@ export function GuidedDiscovery(){
  const set=(key:keyof Model,value:Model[keyof Model])=>setData(current=>({...current,[key]:value}));
  const answer=(key:string,value:Answer)=>setData(current=>({...current,answers:{...current.answers,[key]:value}}));
  useEffect(()=>{
-  let initial={...defaults};try{const saved=JSON.parse(localStorage.getItem(draftKey)||'null');if(saved&&typeof saved==='object'&&Array.isArray(saved.services))initial={...initial,...saved,answers:saved.answers||{}};}catch{}
-  const url=new URL(window.location.href);const pkg=url.searchParams.get('package');if(pkg){const option=getEngagementOption(pkg);if(option){initial.services=option.services.map(service=>service==='Product Design'?'ux':service==='Next.js Development'?'dev':service==='SEO'?'seo':'').filter(Boolean);initial.unsure=false;setOffer(pkg)}}
-  const token=url.searchParams.get('invite');if(token){url.searchParams.delete('invite');window.history.replaceState(null,'',url.pathname+url.search+url.hash);fetch('/api/discovery/invite?token='+encodeURIComponent(token),{cache:'no-store'}).then(async response=>{const payload=await response.json();if(!response.ok)throw Error(payload.message||'Invitation invalid');setInvite(token);setData(current=>({...current,name:payload.name||current.name,email:payload.email||current.email,company:payload.company||current.company}));}).catch(e=>setError(e instanceof Error?e.message:'Invitation unavailable'));}
-  setData(current=>({...initial,...(token?{}:current)}));setReady(true);
+  let active=true;
+  // Load the browser draft after mount, without a synchronous state update in an effect.
+  void Promise.resolve().then(async ()=>{
+   if(!active)return;
+   let initial:Model={...defaults};
+   try{
+    const saved=JSON.parse(localStorage.getItem(draftKey)||'null');
+    if(saved&&typeof saved==='object'&&Array.isArray(saved.services)){
+     initial={...initial,...saved,answers:saved.answers||{}};
+    }
+   }catch{}
+   const url=new URL(window.location.href);
+   const pkg=url.searchParams.get('package');
+   if(pkg){
+    const option=getEngagementOption(pkg);
+    if(option){
+     initial.services=option.services.map(service=>service==='Product Design'?'ux':service==='Next.js Development'?'dev':service==='SEO'?'seo':'').filter(Boolean);
+     initial.unsure=false;
+     if(active)setOffer(pkg);
+    }
+   }
+   const token=url.searchParams.get('invite');
+   if(token){
+    url.searchParams.delete('invite');
+    window.history.replaceState(null,'',url.pathname+url.search+url.hash);
+   }
+   if(!active)return;
+   setData(initial);
+   setReady(true);
+   if(token){
+    try{
+     const response=await fetch('/api/discovery/invite?token='+encodeURIComponent(token),{cache:'no-store'});
+     const payload=await response.json();
+     if(!response.ok)throw Error(payload.message||'Invitation invalid');
+     if(!active)return;
+     setInvite(token);
+     setData(current=>({...current,name:payload.name||current.name,email:payload.email||current.email,company:payload.company||current.company}));
+    }catch(e){if(active)setError(e instanceof Error?e.message:'Invitation unavailable')}
+   }
+  });
+  return ()=>{active=false};
  },[]);
  useEffect(()=>{if(ready&&!done)localStorage.setItem(draftKey,JSON.stringify(data))},[data,ready,done]);
  const changeService=(key:string)=>setData(current=>({...current,unsure:false,services:current.services.includes(key)?current.services.filter(s=>s!==key):[...current.services,key]}));
