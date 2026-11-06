@@ -35,11 +35,6 @@ const clientSchema = z.object({
   id: z.string().uuid(),
   name: z.string().min(1),
   email: z.string().email(),
-  package_key: z.string().nullable(),
-  package_snapshot: z.record(z.string(), z.unknown()),
-  agreed_price: z.number().nullable(),
-  currency: z.string().nullable(),
-  agreed_scope: z.record(z.string(), z.unknown()),
   status: z.enum(["active", "inactive", "archived"]),
 });
 
