@@ -4,9 +4,9 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-  Activity, Bell, BriefcaseBusiness, ChevronRight, CreditCard, FileSearch,
-  FolderKanban, LayoutDashboard, LifeBuoy, LogOut, Menu, Moon, RefreshCw,
-  Search, Settings, ShieldCheck, Sun, Users, X
+  Activity, BriefcaseBusiness, ChevronRight, CreditCard, FileSearch,
+  FolderKanban, LayoutDashboard, LogOut, Menu, Moon, RefreshCw,
+  Search, ShieldCheck, Sun, Users, X
 } from 'lucide-react';
 import './admin-v1.css';
 
