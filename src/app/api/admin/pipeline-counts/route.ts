@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { isDiscoveryAdmin } from "@/lib/discovery-auth";
-import { getSupabaseServerConfig } from "@/lib/supabase-server";
+import { getSupabaseServerConfig, supabaseServerHeaders } from "@/lib/supabase-server";
 
 export async function GET() {
   if (!(await isDiscoveryAdmin())) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
@@ -8,10 +8,9 @@ export async function GET() {
   if (!config) return NextResponse.json({ message: "Storage unavailable" }, { status: 503 });
   async function count(table: string, status: string) {
     const response = await fetch(`${config!.url}/rest/v1/${table}?select=id&status=eq.${encodeURIComponent(status)}`, {
-      method: "HEAD", headers: {
-        apikey: config!.serviceRoleKey, Authorization: `Bearer ${config!.serviceRoleKey}`,
+      method: "HEAD", headers: supabaseServerHeaders(config!, {
         Prefer: "count=exact", "Range-Unit": "items", Range: "0-0",
-      }, cache: "no-store", signal: AbortSignal.timeout(8000),
+      }), cache: "no-store", signal: AbortSignal.timeout(8000),
     });
     if (!response.ok) throw new Error(`${table} count: HTTP ${response.status}`);
     const contentRange = response.headers.get("content-range");

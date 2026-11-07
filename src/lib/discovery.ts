@@ -91,6 +91,26 @@ export const discoveryScopeReadinessSchema = z.object({
 });
 
 const engagementOptionIds = new Set<string>(engagementOptions.map((option) => option.id));
+const approvedAnswerOptions: Record<string, readonly string[]> = {
+  age: ["18–24", "25–34", "35–44", "45–54", "55+", "Prefer not to say"],
+  gender: ["Woman", "Man", "Non-binary", "Self-describe", "Prefer not to say"],
+  role: ["owner", "employee", "agency", "individual"],
+  approval: ["self", "manager", "client", "team", "unknown"],
+  digitalExperience: ["new", "basic", "experienced"],
+  collaboration: ["guided", "collaborative", "delegated"],
+  availability: ["flexible", "weekdays", "evenings", "weekends", "async"],
+  timezone: ["Asia/Karachi", "Asia/Dubai", "Europe/London", "America/New_York", "other"],
+  projectSituation: ["idea", "partial", "live", "problem", "unsure"],
+  designSituation: ["new", "partial", "redesign", "improve"],
+  devState: ["figma", "partial", "live", "new", "unsure"],
+  seoStatus: ["live", "new", "migration", "unknown"],
+  seoObjective: ["ranking", "traffic", "indexing", "local", "technical", "new", "unknown"],
+  communication: ["email", "whatsapp", "voice", "video", "flexible"],
+  urgency: ["normal", "urgent", "exploring"],
+  timeframe: ["immediate", "month", "quarter", "flexible"],
+  budgetStatus: ["unknown", "defined", "approval", "scope"],
+};
+
 const answersSchema = z.record(z.string(), z.union([z.string().max(5000), z.array(z.string().max(200)).max(50)]))
   .superRefine((answers, context) => {
     const selectedPackageId = answers.selectedPackageId;
@@ -104,6 +124,88 @@ const answersSchema = z.record(z.string(), z.union([z.string().max(5000), z.arra
         path: ["selectedPackageId"],
         message: "Choose a valid service path.",
       });
+    }
+
+    for (const [field, options] of Object.entries(approvedAnswerOptions)) {
+      const value = answers[`approved.${field}`];
+      if (value !== undefined && (typeof value !== "string" || !options.includes(value))) {
+        context.addIssue({
+          code: "custom",
+          path: [`approved.${field}`],
+          message: "Please review your discovery answers.",
+        });
+      }
+    }
+
+    const selectedServices = answers["approved.selectedServices"];
+    const allowedServices = ["Product Design", "Next.js Development", "SEO"];
+    if (
+      selectedServices !== undefined &&
+      (!Array.isArray(selectedServices) ||
+        selectedServices.length < 1 ||
+        selectedServices.some((service) => !allowedServices.includes(service)))
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["approved.selectedServices"],
+        message: "Choose at least one valid service.",
+      });
+    }
+
+    const serviceSet = new Set(Array.isArray(selectedServices) ? selectedServices : []);
+    const has = (field: string) => answers[`approved.${field}`] !== undefined;
+    const designSituation = answers["approved.designSituation"];
+    const devState = answers["approved.devState"];
+    const seoStatus = answers["approved.seoStatus"];
+    const communication = answers["approved.communication"];
+    const role = answers["approved.role"];
+    const gender = answers["approved.gender"];
+    const urgency = answers["approved.urgency"];
+    const budgetStatus = answers["approved.budgetStatus"];
+    if (answers.formVersion === "approved-v1") {
+      const requiredAnswers = [
+        "role", "digitalExperience", "collaboration", "availability", "timezone",
+        "projectSituation", "communication", "urgency", "timeframe", "budgetStatus",
+        ...(serviceSet.has("Product Design") ? ["designSituation"] : []),
+        ...(serviceSet.has("Next.js Development") ? ["devState"] : []),
+        ...(serviceSet.has("SEO") ? ["seoStatus", "seoObjective"] : []),
+      ];
+      for (const field of requiredAnswers) {
+        if (!has(field)) {
+          context.addIssue({
+            code: "custom",
+            path: [`approved.${field}`],
+            message: "Please review your discovery answers.",
+          });
+        }
+      }
+    }
+
+    const conditionallyUnavailable = [
+      ...(!serviceSet.has("Product Design") ? ["designSituation", "designSummary", "designImprovement", "designActivity", "designReference"] : []),
+      ...(!serviceSet.has("Next.js Development") ? ["devState", "devRequirements", "devReference"] : []),
+      ...(!serviceSet.has("SEO") ? ["seoStatus", "seoObjective", "seoAudience", "seoUrl"] : []),
+      ...(role !== "employee" && role !== "agency" ? ["approval"] : []),
+      ...(gender !== "Self-describe" ? ["genderDescription"] : []),
+      ...(!["partial", "live", "problem"].includes(String(answers["approved.projectSituation"])) ? ["existingAssetLink"] : []),
+      ...(!["partial", "improve", "redesign"].includes(String(designSituation)) ? ["designReference"] : []),
+      ...(!["partial", "improve"].includes(String(designSituation)) ? ["designSummary"] : []),
+      ...(designSituation !== "redesign" ? ["designImprovement"] : []),
+      ...(designSituation !== "new" ? ["designActivity"] : []),
+      ...(!["partial", "figma", "live"].includes(String(devState)) ? ["devReference"] : []),
+      ...(seoStatus === "new" ? ["seoUrl"] : []),
+      ...(!["whatsapp", "voice"].includes(String(communication)) ? ["contactNumber"] : []),
+      ...(urgency !== "urgent" ? ["urgencyReason"] : []),
+      ...(budgetStatus !== "defined" ? ["budgetAmount"] : []),
+    ];
+    for (const field of new Set(conditionallyUnavailable)) {
+      if (has(field)) {
+        context.addIssue({
+          code: "custom",
+          path: [`approved.${field}`],
+          message: "Please review your discovery answers.",
+        });
+      }
     }
   });
 
@@ -132,6 +234,21 @@ export const discoverySubmissionSchema = z.object({
   discoveryMethod: z.enum(discoveryMethods),
   preferredTimes: z.string().trim().max(2000),
   consent: z.literal(true),
+}).superRefine((submission, context) => {
+  if (submission.answers.formVersion !== "approved-v1") return;
+  const selectedServices = submission.answers["approved.selectedServices"];
+  const submittedServices = new Set<string>(submission.services);
+  if (
+    !Array.isArray(selectedServices) ||
+    selectedServices.length !== submittedServices.size ||
+    selectedServices.some((service) => !submittedServices.has(service))
+  ) {
+    context.addIssue({
+      code: "custom",
+      path: ["answers", "approved.selectedServices"],
+      message: "Selected services do not match the discovery answers.",
+    });
+  }
 });
 
 export const discoveryDraftSchema = z.object({

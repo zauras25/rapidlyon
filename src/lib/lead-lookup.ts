@@ -1,13 +1,13 @@
 import 'server-only';
 import { z } from 'zod';
-import type { SupabaseServerConfig } from '@/lib/supabase-server';
+import { supabaseServerHeaders, type SupabaseServerConfig } from '@/lib/supabase-server';
 
 export const inquiryLeadSchema = z.object({
   id: z.string().uuid(), name: z.string(), email: z.string().email(),
   company: z.string().nullable(), serial_no: z.string().nullable(), archived_at: z.string().nullable(),
 });
 export type InquiryLead = z.infer<typeof inquiryLeadSchema>;
-function headers(config:SupabaseServerConfig){return {apikey:config.serviceRoleKey,Authorization:`Bearer ${config.serviceRoleKey}`};}
+function headers(config:SupabaseServerConfig){return supabaseServerHeaders(config);}
 export async function readInvitableInquiry(config:SupabaseServerConfig, id:string):Promise<{lead:InquiryLead|null;claimed:boolean}> {
   const [inquiryResult,linkedResult] = await Promise.all([
     fetch(`${config.url}/rest/v1/inquiries?id=eq.${id}&select=id,name,email,company,serial_no,archived_at&limit=1`,{headers:headers(config),cache:'no-store',signal:AbortSignal.timeout(7000)}),

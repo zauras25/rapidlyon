@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { isDiscoveryAdmin } from "@/lib/discovery-auth";
-import { getSupabaseServerConfig } from "@/lib/supabase-server";
+import { getSupabaseServerConfig, supabaseServerHeaders } from "@/lib/supabase-server";
 
 export async function GET(request: Request) {
   if (!(await isDiscoveryAdmin())) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
@@ -24,7 +24,7 @@ export async function GET(request: Request) {
     query.set("archived_at", archived ? "not.is.null" : "is.null");
   }
   try {
-    const result = await fetch(`${config.url}/rest/v1/inquiries?${query}`, {headers:{apikey:config.serviceRoleKey,Authorization:`Bearer ${config.serviceRoleKey}`},cache:"no-store"});
+    const result = await fetch(`${config.url}/rest/v1/inquiries?${query}`, {headers:supabaseServerHeaders(config),cache:"no-store"});
     if (!result.ok) return NextResponse.json({message:"Could not load inquiries"},{status:502});
     return NextResponse.json({inquiries:await result.json()});
   } catch {return NextResponse.json({message:"Inquiry service unavailable"},{status:502});}

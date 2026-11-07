@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import {
-  createAdminSession,
   discoveryAdminConfigured,
   discoverySessionCookie,
   isSameOriginRequest,
   verifyAdminPassword,
 } from "@/lib/discovery-auth";
+import { adminMfaConfigured, createMfaChallenge } from "@/lib/admin-mfa";
 import { readBoundedJson } from "@/lib/request-body";
 import { checkRateLimit, rateLimitFailure } from "@/lib/rate-limit";
 import { getSupabaseServerConfig } from "@/lib/supabase-server";
@@ -23,6 +23,10 @@ export async function POST(request: Request) {
       { success: false, message: "Admin sign-in is not configured. Set the required discovery admin environment variables." },
       { status: 503 },
     );
+  }
+
+  if (!adminMfaConfigured()) {
+    return NextResponse.json({ success:false, message:"Admin MFA is not configured. Configure DISCOVERY_ADMIN_TOTP_SECRET before signing in." }, { status:503 });
   }
 
   if (!getSupabaseServerConfig()) {
@@ -45,14 +49,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: false, message: "Password is incorrect." }, { status: 401 });
   }
 
-  const { token, expiresAt } = createAdminSession();
-  const response = NextResponse.json({ success: true });
-  response.cookies.set(discoverySessionCookie, token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
-    path: "/",
-    expires: new Date(expiresAt * 1000),
+  const {token,expiresAt}=createMfaChallenge();
+  const response=NextResponse.json({success:true,mfa_required:true});
+  response.cookies.set('rapidlyon_admin_mfa_pending',token,{
+    httpOnly:true,secure:process.env.NODE_ENV==='production',sameSite:'strict',path:'/api/admin/session',expires:new Date(expiresAt*1000)
   });
   return response;
 }
@@ -64,5 +64,6 @@ export async function DELETE(request: Request) {
 
   const response = NextResponse.json({ success: true });
   response.cookies.delete(discoverySessionCookie);
+  response.cookies.set("rapidlyon_admin_mfa_pending","",{path:"/api/admin/session",expires:new Date(0)});
   return response;
 }

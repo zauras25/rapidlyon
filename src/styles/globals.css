@@ -1494,3 +1494,91 @@ h1,h2,h3,h4,h5,h6{font-family:var(--font-display);font-weight:600;letter-spacing
 .discovery-question-field textarea{display:block;width:100%;min-width:0;min-height:68px;resize:vertical;border-radius:9px;padding:12px;font:inherit;font-size:.91rem;line-height:1.5}
 .discovery-question-row .btn{min-height:44px;white-space:nowrap}
 @media(max-width:640px){.discovery-answer-fields{grid-template-columns:1fr}.discovery-question-row{grid-template-columns:1fr}.discovery-question-row .btn{justify-self:start}}
+
+
+/* Approved public forms UX v2: expanded workspace, readable type and touch sizing. */
+@media (min-width: 1060px) {
+  .contact-page-grid { grid-template-columns: minmax(0, 1fr); gap: clamp(24px, 3vw, 42px); }
+  .contact-page-intro { max-width: 960px; }
+}
+.form-layout:has(> .rapidlyon-approved-form) {
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(26px, 3.5vw, 48px);
+}
+.form-layout:has(> .rapidlyon-approved-form) > :first-child { max-width: 940px; }
+.contact-choice-wrapper, .contact-selected-form, .form-layout > .rapidlyon-approved-form { width: 100%; min-width: 0; }
+.contact-selected-form > .form-panel, .form-layout > .rapidlyon-approved-form {
+  width: 100%; max-width: none;
+  padding: clamp(24px, 3.3vw, 52px);
+}
+.contact-choice-grid { max-width: none; }
+.contact-choice-card { min-height: 155px; }
+.contact-selected-form .form-grid, .rapidlyon-approved-form .form-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: clamp(18px, 2.4vw, 32px);
+  row-gap: clamp(16px, 2.1vw, 26px);
+}
+.contact-selected-form .form-field, .rapidlyon-approved-form .form-field { min-width: 0; margin-bottom: 0; }
+.contact-selected-form .form-field > span, .rapidlyon-approved-form .form-field > span,
+.contact-selected-form .field-label, .rapidlyon-approved-form .field-label {
+  font-size: clamp(.91rem, 1.05vw, 1rem);
+  line-height: 1.45;
+  margin-bottom: 10px;
+}
+.contact-selected-form :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea),
+.rapidlyon-approved-form :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea) {
+  min-width: 0; min-height: 52px; font-size: 1rem; line-height: 1.5;
+  padding: 13px 16px;
+}
+.contact-selected-form :is(input, textarea)::placeholder,
+.rapidlyon-approved-form :is(input, textarea)::placeholder { opacity: 1; color: #697565; }
+.contact-selected-form .form-hint, .rapidlyon-approved-form .form-hint {
+  font-size: .94rem; line-height: 1.65;
+}
+.contact-selected-form .check-row, .rapidlyon-approved-form .check-row {
+  min-height: 48px; margin-block: 10px; padding-block: 7px;
+  font-size: .98rem; line-height: 1.5; align-items: center;
+}
+.contact-selected-form .radio-list, .rapidlyon-approved-form .radio-list { gap: 5px; }
+.contact-selected-form :is(button, .btn), .rapidlyon-approved-form :is(button, .btn) {
+  min-height: 48px; font-size: .96rem;
+}
+.rapidlyon-approved-form .discovery-derived-country {
+  background: var(--color-surface, #f2f6ee); color: var(--color-text, #293427);
+  cursor: default; opacity: 1;
+}
+@media (max-width: 767px) {
+  .contact-page-grid, .form-layout:has(> .rapidlyon-approved-form) { grid-template-columns: minmax(0, 1fr); }
+  .contact-selected-form .form-grid, .rapidlyon-approved-form .form-grid { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .contact-selected-form .form-field.full, .rapidlyon-approved-form .form-field.full { grid-column: auto; }
+  .contact-selected-form > .form-panel, .form-layout > .rapidlyon-approved-form { padding: clamp(18px, 5vw, 28px); }
+  .contact-choice-grid { grid-template-columns: minmax(0, 1fr); }
+  .contact-choice-card { min-height: 92px; }
+  .contact-selected-form :is(button,.btn), .rapidlyon-approved-form :is(button,.btn) { min-height: 48px; }
+}
+@media (max-width: 390px) {
+  .contact-selected-form > .form-panel, .form-layout > .rapidlyon-approved-form { padding: 18px 15px; }
+  .contact-selected-form :is(input,select,textarea), .rapidlyon-approved-form :is(input,select,textarea) { font-size: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .contact-selected-form *, .rapidlyon-approved-form * { scroll-behavior: auto; }
+}
+
+/* Admin delivery workspaces: extensions consume the existing design system tokens. */
+.studio-record-grid,.studio-settings-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:var(--space-3)}
+.studio-record{display:flex;flex-direction:column;align-items:flex-start;gap:var(--space-2);min-width:0;text-decoration:none;text-align:left;background:var(--color-surface);color:var(--color-text);border:1px solid var(--color-border);border-radius:var(--radius-md);padding:var(--space-4);font:inherit;cursor:pointer;overflow-wrap:anywhere}
+.studio-record:hover,.studio-record.selected{border-color:var(--color-brand);background:var(--color-brand-soft)}
+.studio-record:focus-visible,.studio-collapse-button:focus-visible,.studio-toolbar-link:focus-visible{outline:3px solid var(--color-brand);outline-offset:3px}
+.studio-record strong{font-size:var(--text-small);color:var(--color-text)}
+.studio-record small,.studio-record span{font-size:var(--text-caption);color:var(--color-text-muted)}
+.studio-filter-bar{display:flex;flex-wrap:wrap;gap:var(--space-3);align-items:end}
+.studio-filter-bar>.form-field{flex:1;min-width:min(100%,185px)}
+.studio-related{margin:var(--space-3) 0;border-top:1px solid var(--color-border);padding-top:var(--space-3)}
+.studio-settings-grid .content-card{display:grid;gap:var(--space-3);min-width:0}
+.studio-toolbar-link{display:inline-flex;align-items:center;justify-content:center;color:var(--color-text);padding:var(--space-2);border-radius:var(--radius-sm)}
+.studio-collapse-button{border:1px solid #ffffff50;background:transparent;color:#e7efdf;border-radius:var(--radius-sm);padding:var(--space-2);font-size:var(--text-caption);cursor:pointer;display:flex;gap:var(--space-2);align-items:center;justify-content:center}
+@media(min-width:841px){.console.studio-collapsed{grid-template-columns:80px minmax(0,1fr)}.studio-collapsed .console-nav{padding-inline:var(--space-2)}.studio-collapsed .console-nav .brand-wordmark,.studio-collapsed .console-nav-label,.studio-collapsed .studio-nav-text,.studio-collapsed .console-nav-bottom,.studio-collapsed .studio-collapse-button span{display:none}.studio-collapsed .console-nav-links a{justify-content:center;padding:var(--space-3)}.studio-collapsed .console-nav .brand{justify-content:center}.studio-collapsed .console-nav .brand-mark{width:42px;height:42px;flex-basis:42px}}
+@media(max-width:840px){.studio-collapse-button{display:none}.studio-settings-grid{grid-template-columns:1fr}}
+.studio-milestone{display:grid;gap:var(--space-3);padding:var(--space-4);border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface);margin:var(--space-3) 0;min-width:0}
+.studio-milestone h4{margin:var(--space-2) 0}
+.studio-milestone .status{justify-self:start}

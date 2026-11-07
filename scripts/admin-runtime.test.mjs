@@ -67,13 +67,13 @@ test('admin expiry is evaluated only after the request connection is established
   }, { Date: RequestDate, Buffer, URL, process: { env: {
     DISCOVERY_SESSION_SECRET: 'test-secret-with-at-least-32-characters',
   } } });
-  const signed = expiry => `${expiry}.${crypto.createHmac('sha256',
-    'test-secret-with-at-least-32-characters').update(String(expiry)).digest('base64url')}`;
+  const signed = expiry => `mfa-${expiry}.${crypto.createHmac('sha256',
+    'test-secret-with-at-least-32-characters').update(`mfa-${expiry}`).digest('base64url')}`;
   token = signed(200);
   assert.equal(await auth.isDiscoveryAdmin(), true);
   connected = false;
   token = signed(99);
   assert.equal(await auth.isDiscoveryAdmin(), false);
-  token = '200.invalid-signature';
+  token = 'mfa-200.invalid-signature';
   assert.equal(await auth.isDiscoveryAdmin(), false);
 });

@@ -47,7 +47,7 @@ export function createAdminSession() {
   }
 
   const expiresAt = Math.floor(Date.now() / 1000) + sessionDurationSeconds;
-  const payload = String(expiresAt);
+  const payload = `mfa-${expiresAt}`;
   return { token: `${payload}.${sign(payload, secret)}`, expiresAt };
 }
 
@@ -56,8 +56,8 @@ export function verifyAdminSession(token: string | undefined) {
   if (!token || !secret) return false;
 
   const [expiresAt, signature, extra] = token.split(".");
-  if (!expiresAt || !signature || extra || !/^\d+$/.test(expiresAt)) return false;
-  if (Number(expiresAt) <= Math.floor(Date.now() / 1000)) return false;
+  if (!expiresAt || !signature || extra || !/^mfa-\d+$/.test(expiresAt)) return false;
+  if (Number(expiresAt.slice(4)) <= Math.floor(Date.now() / 1000)) return false;
 
   return safeEqual(signature, sign(expiresAt, secret));
 }

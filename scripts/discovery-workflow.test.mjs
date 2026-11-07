@@ -47,8 +47,8 @@ test('admin workflow uses authenticated APIs and keeps scope readiness visible',
   assert.match(route, /save_discovery_service_review/);
   assert.match(route, /set_discovery_scope_readiness/);
   assert.match(component, /\['questions','Client questions',openCount\]/);
-  assert.match(component, /\['session','Session',session\?1:0\]/);
+  assert.match(component, /\['session','Conversation',session\?1:0\]/);
   assert.match(component, /Session workspace pages/);
-  assert.match(component, /Service suitability/);
-  assert.match(component, /Scope readiness/);
+  assert.match(component, /Service fit/);
+  assert.match(component, /Ready for scope/);
 });

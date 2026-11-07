@@ -3,6 +3,7 @@ import "server-only";
 export type SupabaseServerConfig = {
   url: string;
   serviceRoleKey: string;
+  legacyServiceRoleKey: boolean;
 };
 
 function hasLegacyServiceRoleJwtShape(key: string): boolean {
@@ -33,8 +34,10 @@ export function getSupabaseServerConfig(): SupabaseServerConfig | null {
   if (!url || !serviceRoleKey) {
     throw new Error("Supabase server configuration is incomplete.");
   }
-  if (!hasLegacyServiceRoleJwtShape(serviceRoleKey)) {
-    throw new Error("SUPABASE_SERVICE_ROLE_KEY must be a legacy service_role JWT; new secret keys are not supported by this REST implementation.");
+  const legacyServiceRoleKey = hasLegacyServiceRoleJwtShape(serviceRoleKey);
+  const modernServiceRoleKey = /^sb_secret_[A-Za-z0-9_-]{20,}$/.test(serviceRoleKey);
+  if (!legacyServiceRoleKey && !modernServiceRoleKey) {
+    throw new Error("SUPABASE_SERVICE_ROLE_KEY must be a service_role JWT or an sb_secret_ key.");
   }
 
   try {
@@ -46,5 +49,16 @@ export function getSupabaseServerConfig(): SupabaseServerConfig | null {
     throw new Error("SUPABASE_URL must be a valid HTTPS Supabase URL.");
   }
 
-  return { url: url.replace(/\/+$/, ""), serviceRoleKey };
+  return { url: url.replace(/\/+$/, ""), serviceRoleKey, legacyServiceRoleKey };
+}
+
+export function supabaseServerHeaders(
+  config: SupabaseServerConfig,
+  additionalHeaders: Record<string, string> = {},
+) {
+  return {
+    apikey: config.serviceRoleKey,
+    ...(config.legacyServiceRoleKey ? { Authorization: `Bearer ${config.serviceRoleKey}` } : {}),
+    ...additionalHeaders,
+  };
 }

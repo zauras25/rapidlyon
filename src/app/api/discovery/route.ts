@@ -5,7 +5,7 @@ import { discoverySubmissionSchema } from "@/lib/discovery";
 import { isSameOriginRequest } from "@/lib/discovery-auth";
 import { readBoundedBody } from "@/lib/request-body";
 import { checkRateLimit, rateLimitFailure } from "@/lib/rate-limit";
-import { getSupabaseServerConfig } from "@/lib/supabase-server";
+import { getSupabaseServerConfig, supabaseServerHeaders } from "@/lib/supabase-server";
 import { attemptDiscoveryNotification } from "@/lib/discovery-notification";
 import { getAuthenticatedSupabaseUser, type AuthenticatedSupabaseUser } from "@/lib/client-auth";
 import { z } from "zod";
@@ -40,11 +40,7 @@ async function removeUploadedFiles(
   try {
     const response = await fetch(`${config.url}/storage/v1/object/discovery-attachments`, {
     method: "DELETE",
-    headers: {
-      apikey: config.serviceRoleKey,
-      Authorization: `Bearer ${config.serviceRoleKey}`,
-      "Content-Type": "application/json",
-    },
+    headers: supabaseServerHeaders(config, { "Content-Type": "application/json" }),
     body: JSON.stringify({ prefixes: paths }),
     cache: "no-store",
   });
@@ -154,7 +150,7 @@ export async function POST(request: Request) {
       if (claimed) {
         // Lost-response retry: return the original receipt only if this is the same submission key.
         const existing=await fetch(`${config.url}/rest/v1/discovery_submissions?source_inquiry_id=eq.${sourceInquiryId}&submission_key=eq.${parsed.data.idempotencyKey}&select=id,serial_no&limit=1`,{
-          headers:{apikey:config.serviceRoleKey,Authorization:`Bearer ${config.serviceRoleKey}`},cache:'no-store',signal:AbortSignal.timeout(7000),
+          headers:supabaseServerHeaders(config),cache:'no-store',signal:AbortSignal.timeout(7000),
         });
         if(existing.ok){const rows=await existing.json();const row=Array.isArray(rows)?rows[0]:null;
           if(row && typeof row.id==='string' && typeof row.serial_no==='string')return NextResponse.json({success:true,message:'This discovery request has already been received.',reference:row.serial_no,statusUrl:createPublicStatusUrl('qd',row.id),workspaceLinked:Boolean(user)},{status:200});
@@ -196,11 +192,7 @@ export async function POST(request: Request) {
     if (user) {
       const clientResponse = await fetch(`${config.url}/rest/v1/rpc/get_or_create_authenticated_client`, {
         method: "POST",
-        headers: {
-          apikey: config.serviceRoleKey,
-          Authorization: `Bearer ${config.serviceRoleKey}`,
-          "Content-Type": "application/json",
-        },
+        headers: supabaseServerHeaders(config, { "Content-Type": "application/json" }),
         body: JSON.stringify({
           p_auth_user_id: user.id,
           p_auth_email: user.email,
@@ -235,12 +227,7 @@ export async function POST(request: Request) {
       const path = `${parsed.data.idempotencyKey}/${randomUUID()}.${extension}`;
       const response = await fetch(`${config.url}/storage/v1/object/discovery-attachments/${path}`, {
         method: "POST",
-        headers: {
-          apikey: config.serviceRoleKey,
-          Authorization: `Bearer ${config.serviceRoleKey}`,
-          "Content-Type": file.type,
-          "x-upsert": "false",
-        },
+        headers: supabaseServerHeaders(config, { "Content-Type": file.type, "x-upsert": "false" }),
         body: await file.arrayBuffer(),
         cache: "no-store",
       });
@@ -261,12 +248,10 @@ export async function POST(request: Request) {
       `${config.url}/rest/v1/discovery_submissions?on_conflict=submission_key`,
       {
         method: "POST",
-        headers: {
-          apikey: config.serviceRoleKey,
-          Authorization: `Bearer ${config.serviceRoleKey}`,
+        headers: supabaseServerHeaders(config, {
           "Content-Type": "application/json",
           Prefer: "resolution=ignore-duplicates,return=representation",
-        },
+        }),
         body: JSON.stringify({
           submission_key: parsed.data.idempotencyKey,
           client_id: clientId,
@@ -299,7 +284,7 @@ export async function POST(request: Request) {
       await removeUploadedFiles(config, uploadedPaths);
       duplicateSubmission = true;
       const lookup=await fetch(`${config.url}/rest/v1/discovery_submissions?submission_key=eq.${parsed.data.idempotencyKey}&select=id,serial_no,created_at&limit=1`,{
-        headers:{apikey:config.serviceRoleKey,Authorization:`Bearer ${config.serviceRoleKey}`},cache:'no-store',signal:AbortSignal.timeout(7000),
+        headers:supabaseServerHeaders(config),cache:'no-store',signal:AbortSignal.timeout(7000),
       });
       if(lookup.ok){const rows=await lookup.json();const row=Array.isArray(rows)?rows[0]:null;
         const reference=z.object({id:z.string().uuid(),serial_no:z.string(),created_at:z.string()}).safeParse(row);

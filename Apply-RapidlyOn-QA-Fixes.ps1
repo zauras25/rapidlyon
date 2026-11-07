@@ -1,65 +1,46 @@
+param([string]$ProjectRoot = 'C:\Users\M.Zohaib\Desktop\rapidlyon-clean')
 $ErrorActionPreference = 'Stop'
-$root = 'C:\Users\M.Zohaib\Desktop\rapidlyon-clean'
-Set-Location -LiteralPath $root
-if ((git branch --show-current).Trim() -ne 'cleanup/rapidlyon-structure') { throw 'STOP: Wrong Git branch' }
-if (((git rev-parse --show-toplevel).Trim().Replace('\','/')) -ne ($root.Replace('\','/'))) { throw 'STOP: Wrong repository' }
-$workFile = 'src/app/work/page.tsx'
-$headerFile = 'src/components/site/chrome.tsx'
-$cssFile = 'src/app/globals.css'
-foreach ($p in @($workFile,$headerFile,$cssFile)) { if (!(Test-Path -LiteralPath $p)) { throw "Missing $p" } }
-$enc = New-Object System.Text.UTF8Encoding($false)
-function WriteUtf8([string]$p,[string]$s) { [System.IO.File]::WriteAllText((Join-Path (Get-Location).Path $p),$s,$enc) }
-# Remove a second full <main>/<h1> tree from the streamed Work route fallback.
-$work = [System.IO.File]::ReadAllText((Join-Path $root $workFile))
-$old = '<Suspense fallback={<WorkPage projects={[]} />}>'
-$new = '<Suspense fallback={<div className="shell" role="status" aria-live="polite">Loading published work…</div>}>'
-if ($work.Contains($old)) { WriteUtf8 $workFile ($work.Replace($old,$new)); Write-Host 'FIX /work: duplicate fallback landmark removed' -ForegroundColor Green }
-elseif ($work.Contains($new)) { Write-Host 'Already fixed /work' }
-else { throw 'STOP: unexpected /work markup; no partial patch applied' }
-# Mobile menu trigger should return focus to trigger after Escape; already implemented.
-# Improve accessibility of footer interactive links using dedicated CSS only; no global type scale changes.
-$css = [System.IO.File]::ReadAllText((Join-Path $root $cssFile))
-$marker = '/* RapidlyOn QA: footer and navigation minimum hit areas */'
-$addition = @'
-
-/* RapidlyOn QA: footer and navigation minimum hit areas */
-.footer-social a,
-.footer-legal a,
-.footer-column a,
-.mobile-menu a,
-.nav-actions > a {
-  min-height: 44px;
-  display: inline-flex;
-  align-items: center;
+if (!(Test-Path (Join-Path $ProjectRoot 'package.json'))) { throw 'STOP: package.json not found.' }
+$stamp = Get-Date -Format 'yyyyMMdd-HHmmss'
+$backupRoot = Join-Path $ProjectRoot "qa-results\patch-backup-$stamp"
+$fixes = @(
+  @{ Path='src\components\console\admin-workspaces.tsx'; Old='const combined=useMemo(()=>'; New='const combined=useMemo<Array<RecordRow & {_kind:string;_route:string}>>(()=>'; Name='Global search typed records' },
+  @{ Path='scripts\admin-runtime.test.mjs'; Old='const signed = expiry => `${expiry}.${crypto.createHmac'; New='const signed = expiry => `mfa-${expiry}.${crypto.createHmac'; Name='Admin session test token prefix' },
+  @{ Path='scripts\admin-runtime.test.mjs'; Old='.update(String(expiry)).digest'; New='.update(`mfa-${expiry}`).digest'; Name='Admin session test signed payload' },
+  @{ Path='scripts\admin-runtime.test.mjs'; Old="token = '200.invalid-signature';"; New="token = 'mfa-200.invalid-signature';"; Name='Admin session invalid signature test' },
+  @{ Path='scripts\business-release.test.mjs'; Old='assert.match(discoveryForm, /not a quote or commitment/i);'; New='assert.match(discoveryForm, /No commitment required/i);'; Name='Inquiry current disclaimer assertion' },
+  @{ Path='scripts\discovery-workflow.test.mjs'; Old="\['session','Session',session\?1:0\]"; New="\['session','Conversation',session\?1:0\]"; Name='Discovery session label' },
+  @{ Path='scripts\discovery-workflow.test.mjs'; Old='Service suitability'; New='Service fit'; Name='Discovery service review label' },
+  @{ Path='scripts\discovery-workflow.test.mjs'; Old='Scope readiness'; New='Ready for scope'; Name='Discovery readiness label' }
+)
+# Prepare a complete in-memory patch before modifying any file.
+$changes = @{}
+foreach ($fix in $fixes) {
+  $path = Join-Path $ProjectRoot $fix.Path
+  if (!(Test-Path -LiteralPath $path)) { throw "STOP: Missing file $($fix.Path)" }
+  if (!$changes.ContainsKey($fix.Path)) { $changes[$fix.Path] = [System.IO.File]::ReadAllText($path) }
+  $content = $changes[$fix.Path]
+  if ($content.Contains($fix.Old)) {
+    $changes[$fix.Path] = $content.Replace($fix.Old, $fix.New)
+    Write-Host "PATCH: $($fix.Name)" -ForegroundColor Cyan
+  } elseif ($content.Contains($fix.New)) {
+    Write-Host "ALREADY APPLIED: $($fix.Name)" -ForegroundColor DarkGray
+  } else {
+    throw "STOP: Unexpected source for $($fix.Name). No files changed."
+  }
 }
-.footer-social a {
-  min-width: 44px;
-  justify-content: center;
+$encoding = [System.Text.UTF8Encoding]::new($false)
+New-Item -ItemType Directory -Path $backupRoot -Force | Out-Null
+foreach ($relative in $changes.Keys) {
+  $path = Join-Path $ProjectRoot $relative
+  $previous = [System.IO.File]::ReadAllText($path)
+  $updated = $changes[$relative]
+  if ($updated -cne $previous) {
+    $backup = Join-Path $backupRoot $relative
+    New-Item -ItemType Directory -Path (Split-Path -Parent $backup) -Force | Out-Null
+    Copy-Item -LiteralPath $path -Destination $backup
+    [System.IO.File]::WriteAllText($path, $updated, $encoding)
+  }
 }
-
-'@
-if (!$css.Contains($marker)) { WriteUtf8 $cssFile ($css + $addition); Write-Host 'FIX: minimum hit areas for navigation/footer controls' -ForegroundColor Green }
-else { Write-Host 'Hit-area CSS already present' }
-Write-Host '`n=== PATCH REVIEW ==='
-git diff --stat
-Write-Host '`n=== TESTS: TYPESCRIPT ==='
-npx tsc --noEmit
-if ($LASTEXITCODE -ne 0) { throw 'TypeScript validation failed' }
-Write-Host '`n=== TESTS: LINT ==='
-npm run lint
-if ($LASTEXITCODE -ne 0) { throw 'Lint validation failed' }
-Write-Host '`n=== TESTS: PRODUCTION BUILD ==='
-npm run build
-if ($LASTEXITCODE -ne 0) { throw 'Production build failed' }
-Write-Host '`n=== TESTS: SOURCE INTEGRATION ==='
-npm run test:staging
-if ($LASTEXITCODE -ne 0) { throw 'Source integration tests failed' }
-Write-Host '`n=== BROWSER AUDIT (requires server on localhost:3000) ==='
-try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:3000/' -UseBasicParsing -TimeoutSec 4; $available=($r.StatusCode -eq 200) } catch { $available=$false }
-if ($available) {
-  node scripts/qa-fix-verification.mjs
-  if ($LASTEXITCODE -ne 0) { throw 'Browser QA detected findings: inspect qa-artifacts/qa-fixes/report.json' }
-} else {
-  Write-Warning 'Browser QA not run: start `npm run start -- -p 3000` in another terminal, then run `node scripts/qa-fix-verification.mjs`.'
-}
-Write-Host 'QA PATCH AND AVAILABLE TESTS COMPLETED — review results before commit' -ForegroundColor Green
+Write-Host "`nApplied targeted source/test fixes; backups: $backupRoot" -ForegroundColor Green
+Write-Host 'No .env files, Supabase data, authentication logic, or payment logic modified.'

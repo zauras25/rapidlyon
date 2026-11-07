@@ -39,7 +39,7 @@ test("public service catalog keeps unapproved rates unpublished and quote-only",
     assert.doesNotMatch(source, /\$(?:179|299|549|129|499|899|199)\b/);
   }
   assert.match(pricingPage, /Custom quote/);
-  assert.match(discoveryForm, /not a quote or commitment/i);
+  assert.match(discoveryForm, /No commitment required/i);
   assert.match(read("src/lib/discovery.ts"), /Choose a valid service path/);
 });
 

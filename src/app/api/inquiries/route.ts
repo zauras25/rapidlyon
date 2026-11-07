@@ -63,6 +63,13 @@ export async function POST(request: Request) {
 
   let receipt: {id:string; serial_no:string}|null=null;
   let duplicate=false;
+  const projectDescription = [
+    parsed.data.projectDescription,
+    parsed.data.reason ? `Inquiry reason: ${parsed.data.reason}` : "",
+    parsed.data.preferredReplyMethod ? `Preferred reply method: ${parsed.data.preferredReplyMethod}` : "",
+    parsed.data.preferredReplyMethod === "whatsapp" ? `WhatsApp number: ${parsed.data.whatsappNumber}` : "",
+    typeof parsed.data.timeSensitive === "boolean" ? `Time-sensitive: ${parsed.data.timeSensitive ? "yes" : "no"}` : "",
+  ].filter(Boolean).join("\n\n");
   try {
     const response = await fetch(`${config.url}/rest/v1/inquiries?on_conflict=submission_key`, {
       method: "POST",
@@ -78,7 +85,7 @@ export async function POST(request: Request) {
         email: parsed.data.email,
         company: parsed.data.company || null,
         service: parsed.data.service,
-        project_description: parsed.data.projectDescription,
+        project_description: projectDescription,
         budget: parsed.data.budget || null,
         timeline: parsed.data.timeline || null,
       }),

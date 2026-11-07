@@ -1,6 +1,6 @@
 import 'server-only';
 import { createHash } from 'node:crypto';
-import type { SupabaseServerConfig } from '@/lib/supabase-server';
+import { supabaseServerHeaders, type SupabaseServerConfig } from '@/lib/supabase-server';
 
 export type DiscoveryWorkflowRow = Record<string, unknown>;
 
@@ -32,8 +32,7 @@ export function hashDiscoveryWorkflowToken(token: string) {
 
 export function discoveryWorkflowHeaders(config: SupabaseServerConfig, json = false) {
   return {
-    apikey: config.serviceRoleKey,
-    Authorization: `Bearer ${config.serviceRoleKey}`,
+    ...supabaseServerHeaders(config),
     ...(json ? { 'Content-Type': 'application/json' } : {}),
   };
 }
@@ -72,7 +71,12 @@ export async function callDiscoveryWorkflowRpc<T = unknown>(
     const databaseMessage=typeof data.message==='string'?data.message:'';
     const known=Object.entries(actionMessages).find(([key])=>databaseMessage.includes(key));
     if(known)throw new DiscoveryWorkflowActionError(known[1]);
-    console.error(`Discovery workflow RPC ${functionName} failed with status ${response.status}.`);
+    console.error("DISCOVERY_RPC_FAILURE", {
+  function: functionName,
+  httpStatus: response.status,
+  errorCode: typeof data.code === "string" ? data.code : "UNKNOWN",
+  errorMessage: databaseMessage.slice(0, 300),
+});
     throw new Error(`Workflow action failed (${response.status}).`);
   }
   return await response.json() as T;
